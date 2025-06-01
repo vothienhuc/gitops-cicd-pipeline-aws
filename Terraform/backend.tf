@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket = var.bucket_name
+    bucket = "shaimaa-terraform-state-bucket"
     key = "terraform.tfstate"
-    region = var.aws_region
+    region = "us-east-1"
     use_lockfile = true 
   }
 } 
