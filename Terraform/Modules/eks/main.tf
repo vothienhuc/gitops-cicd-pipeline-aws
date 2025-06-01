@@ -67,10 +67,6 @@ resource "aws_eks_node_group" "node_group" {
   capacity_type  = "ON_DEMAND"
   disk_size      = 20
 
-  /*remote_access {
-    ec2_ssh_key = "eks-keypair" # Ensure this key pair exists in your AWS account
-    source_security_group_ids = [aws_security_group.eks_node_group_sg.id]
-  }*/
 
   scaling_config {
     desired_size = 2
