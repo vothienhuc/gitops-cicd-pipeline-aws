@@ -1,4 +1,3 @@
-
 # -------------------------------------------------------------------#
 # ---------------------------- Network -------------------------------#
 # -------------------------------------------------------------------# 
@@ -29,4 +28,7 @@ variable "network_private_subnets" {
   description = "Map of private subnets with CIDR and availability zone"
 }
 
-
+variable "aws_region" {
+  type = string
+  description = "AWS region where the resources will be created"
+}

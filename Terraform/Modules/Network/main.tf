@@ -59,7 +59,7 @@ resource "aws_eip" "NatEIP" {
   domain = "vpc"
 }
 resource "aws_nat_gateway" "NatGW" {
-  subnet_id     = aws_subnet.Public_Subnets["Public_Subnet1"].id
+  subnet_id     = values(aws_subnet.Public_Subnets)[0].id
   allocation_id = aws_eip.NatEIP.id
   tags = {
     Name       = "Terraform NAT"

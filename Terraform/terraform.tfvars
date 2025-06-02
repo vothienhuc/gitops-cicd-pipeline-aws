@@ -2,35 +2,34 @@
 # -------------------------------------------------------------------#
 #   ---------------------------- Network -------------------------------#
 # -------------------------------------------------------------------#
-
-
-network_vpc_name = "${aws_region}-vpc"
+aws_region = "us-east-1"
+network_vpc_name = "us-east-1-vpc"
 network_vpc_cidr = "10.10.0.0/16"
 network_public_subnets = {
   public_subnet_1 = {
-    subnet_cidr = "10.10.1.0/24"
-    subnet_az   = "es-east-1a"
+    Subnet_CIDR = "10.10.1.0/24"
+    Subnet_AZ   = "us-east-1a"
   }
   public_subnet_2 = {
-    subnet_cidr = "10.10.2.0/24"
-    subnet_az   = "es-east-1b"
+    Subnet_CIDR = "10.10.2.0/24"
+    Subnet_AZ   = "us-east-1b"
   }
   public_subnet_3 = {
-    subnet_cidr = "10.10.3.0/24"
-    subnet_az   = "es-east-1c"
+    Subnet_CIDR = "10.10.3.0/24"
+    Subnet_AZ   = "us-east-1c"
   }
 }
 network_private_subnets = {
   private_subnet_1 = {
-    subnet_cidr = "10.10.4.0/24"
-    subnet_az   = "es-east-1a"
+    Subnet_CIDR = "10.10.4.0/24"
+    Subnet_AZ   = "us-east-1a"
   }
   private_subnet_2 = {
-    subnet_cidr = "10.10.5.0/24"
-    subnet_az   = "es-east-1b"
+    Subnet_CIDR = "10.10.5.0/24"
+    Subnet_AZ   = "us-east-1b"
   }
   private_subnet_3 = {
-    subnet_cidr = "10.10.6.0/24"
-    subnet_az   = "es-east-1c"
+    Subnet_CIDR = "10.10.6.0/24"
+    Subnet_AZ   = "us-east-1c"
   }
 }
