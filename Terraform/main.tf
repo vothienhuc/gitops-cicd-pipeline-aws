@@ -12,3 +12,15 @@ module "Network" {
     eks_subnets_ids = values(module.Network.PrivSubID)
 
   }
+
+  module "ECR" {
+    source = "./Modules/ecr"
+    eks_node_role_name = module.EKS_Cluster.node_role_name
+  }
+
+  module "Secrets" {
+    source = "./Modules/secretManager"
+    mySQL_username = var.mySQL_username
+    mySQL_password = var.mySQL_password
+
+  }

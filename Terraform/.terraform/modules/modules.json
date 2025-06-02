@@ -1,1 +1,1 @@
-{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"EKS_Cluster","Source":"./Modules/eks","Dir":"Modules/eks"},{"Key":"Network","Source":"./Modules/Network","Dir":"Modules/Network"}]}
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"ECR","Source":"./Modules/ecr","Dir":"Modules/ecr"},{"Key":"EKS_Cluster","Source":"./Modules/eks","Dir":"Modules/eks"},{"Key":"Network","Source":"./Modules/Network","Dir":"Modules/Network"},{"Key":"Secrets","Source":"./Modules/secretManager","Dir":"Modules/secretManager"}]}
