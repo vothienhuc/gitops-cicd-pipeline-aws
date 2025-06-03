@@ -33,3 +33,9 @@ network_private_subnets = {
     Subnet_AZ   = "us-east-1c"
   }
 }
+
+# -------------------------------------------------------------------#
+# ---------------------------- EBS CSI Driver --------------------------# 
+# ------------------------------------------------------------------------#
+ebs_csi_driver_namespace = "kube-system"
+ebs_csi_driver_service_account_name = "ebs-csi-controller-sa"

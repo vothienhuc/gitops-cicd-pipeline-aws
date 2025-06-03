@@ -113,18 +113,6 @@ resource "aws_eks_cluster" "example" {
 
 
 
-1- gg
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -10,7 +10,7 @@ data "tls_certificate" "eks_cluster" {
   url = data.aws_eks_cluster.eks.identity[0].oidc[0].issuer
 }
 
-resource "aws_iam_openid_connect_provider" "eks" {
+resource "aws_iam_openid_connect_provider" "eks_oidc_provider" {
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.eks_cluster.certificates[0].sha1_fingerprint]
   url             = data.aws_eks_cluster.eks.identity[0].oidc[0].issuer
@@ -48,7 +48,7 @@ resource "aws_iam_role" "external_secrets_irsa" {
       {
         Effect = "Allow",
         Principal = {
-          Federated = aws_iam_openid_connect_provider.eks.arn
+          Federated = aws_iam_openid_connect_provider.eks_oidc_provider.arn
         },
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {

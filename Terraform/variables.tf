@@ -45,3 +45,18 @@ variable "mySQL_password" {
   type      = string
   sensitive = true
 }
+
+# -------------------------------------------------------------------#
+# ---------------------------- EBS CSI Driver --------------------------#
+# -------------------------------------------------------------------#
+variable "ebs_csi_driver_namespace" {
+  type        = string
+  description = "The Kubernetes namespace where the EBS CSI Driver will be deployed"
+  default     = "kube-system"
+}
+
+variable "ebs_csi_driver_service_account_name" {
+  type        = string
+  description = "The name of the Kubernetes service account for the EBS CSI Driver"
+  default     = "ebs-csi-controller-sa"
+}
