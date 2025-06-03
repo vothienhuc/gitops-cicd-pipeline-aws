@@ -1,6 +1,6 @@
 #  ////////////////////////////// My SQL Secret Manager ///////////////////////////// 
 resource "aws_secretsmanager_secret" "mysql_secret" {
-  name = "mysql-credentials"
+  name = "mysql-credentials-1"
 }
 
 resource "aws_secretsmanager_secret_version" "mysql_secret_version" {
@@ -16,7 +16,7 @@ resource "aws_secretsmanager_secret_version" "mysql_secret_version" {
 
 #  ////////////////////////////// Redis Secret Manager ///////////////////////////// 
 resource "aws_secretsmanager_secret" "redis_secret" {
-  name = "redis-credentials"
+  name = "redis-credentials-1"
 }
 
 resource "aws_secretsmanager_secret_version" "redis_secret_version" {
@@ -24,5 +24,25 @@ resource "aws_secretsmanager_secret_version" "redis_secret_version" {
   secret_string = jsonencode({
     hostname = "redis-service"
     port     = "6379"
+  })
+}
+
+# ///////////////////////////////   Secret Manager Iam policy ////////////////////
+resource "aws_iam_policy" "secretsmanager_policy" {
+  name        = "secretsmanager-access"
+  description = "Allows access to Secrets Manager secrets"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:ListSecrets"
+        ],
+        Resource = "*"
+      }
+    ]
   })
 }
