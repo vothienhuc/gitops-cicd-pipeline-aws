@@ -26,8 +26,10 @@ module "Secrets" {
 }
 
 module "EBS_CSI_Driver" {
-  source           = "./Modules/ebs_csi_driver"
-  eks_cluster_name = module.EKS_Cluster.cluster_name
+  source            = "./Modules/ebs_csi_driver"
+  eks_cluster_name  = module.EKS_Cluster.cluster_name
+  aws_account_id    = "354918400286"
+  oidc_provider_url = module.OIDC.oidc_provider_url
 }
 
 module "OIDC" {
