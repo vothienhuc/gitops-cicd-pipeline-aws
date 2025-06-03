@@ -35,4 +35,5 @@ module "EBS_CSI_Driver" {
 module "OIDC" {
   source           = "./Modules/oidc"
   eks_cluster_name = module.EKS_Cluster.cluster_name
+  depends_on       = [module.EKS_Cluster]
 }
