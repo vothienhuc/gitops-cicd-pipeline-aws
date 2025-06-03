@@ -24,3 +24,8 @@ module "Network" {
     mySQL_password = var.mySQL_password
 
   }
+  
+  module "EBS_CSI_Driver" {
+    source = "./Modules/ebs_csi_driver"
+    eks_cluster_name = module.EKS_Cluster.cluster_name
+    }
