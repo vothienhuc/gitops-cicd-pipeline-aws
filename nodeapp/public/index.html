@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DevOps Demo App</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="./app.js"></script>
+  </head>
+  <body class="min-h-screen flex items-center justify-center px-6">
+    <div class="container text-center">
+      <h1>🚀 DevOps App Dashboard</h1>
+      <p>Interact with your app services:</p>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <button onclick="callApi('/db')" class="btn">Check MySQL</button>
+        <button onclick="callApi('/redis')" class="btn">Check Redis</button>
+        <button
+          onclick="callApi('/redis/set?key=color&value=blue')"
+          class="btn"
+        >
+          Set Redis Key
+        </button>
+        <button onclick="callApi('/redis/get?key=color')" class="btn">
+          Get Redis Key
+        </button>
+        <button
+          onclick="callApi('/health')"
+          class="btn col-span-2 sm:col-span-3"
+        >
+          Health Check
+        </button>
+      </div>
+
+      <div id="output">Click a button to see results here...</div>
+    </div>
+  </body>
+</html>
