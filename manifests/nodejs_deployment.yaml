@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-app
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-app
+  template:
+    metadata:
+      labels:
+        app: node-app
+    spec:
+      containers:
+      - name: node-app
+        image: 339007232055.dkr.ecr.us-east-1.amazonaws.com/my-ecr:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: mysql_hostname
+          valueFrom:
+            secretKeyRef:
+              name: mysql-k8s-secret
+              key: mysql_hostname
+        - name: mysql-username
+          valueFrom:
+            secretKeyRef:
+              name: mysql-k8s-secret
+              key: mysql-username
+        - name: mysql-password
+          valueFrom:
+            secretKeyRef:
+              name: mysql-k8s-secret
+              key: mysql-password
+        - name: mysql_port
+          valueFrom:
+            secretKeyRef:
+              name: mysql-k8s-secret
+              key: mysql_port
+        - name: redis_hostname
+          valueFrom:
+            secretKeyRef:
+              name: redis-k8s-secret
+              key: redis_hostname
+        - name: redis_port
+          valueFrom:
+            secretKeyRef:
+              name: redis-k8s-secret
+              key: redis_port
