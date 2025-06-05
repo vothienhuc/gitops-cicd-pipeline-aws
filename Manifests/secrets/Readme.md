@@ -10,13 +10,13 @@ This guide explains how to set up the **External Secrets Operator** with **AWS S
 ### 1️⃣ **Add the Helm Repository:**
 
 ```bash
-helm repo add external-secrets-operator https://charts.external-secrets.io/
+Helm repo add external-secrets-operator https://charts.external-secrets.io/
 ```
 
 ### 2️⃣ **Install the External Secrets Operator:**
 
 ```bash
-helm install external-secrets external-secrets/external-secrets \
+Helm install external-secrets external-secrets/external-secrets \
   -n external-secrets --create-namespace \
   --set serviceAccount.name=external-secrets \
   --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::<ACCOUNT_ID>:role/external-secrets-irsa\
@@ -56,7 +56,7 @@ kubectl create secret generic aws-credentials \
 
 ### 3️⃣ **Create a ClusterSecretStore**
 
-Now, Apply the K8s manifests 
+Now, Apply the K8s Manifests 
 ```bash
 kubectl apply -f k8s/secrets
 ```
@@ -101,5 +101,5 @@ This setup will allow the **External Secrets Operator** to automatically sync se
 
 ---
 ## References:
-[Artifact hub](https://artifacthub.io/packages/helm/external-secrets-operator/external-secrets?modal=install) <br>
+[Artifact hub](https://artifacthub.io/packages/Helm/external-secrets-operator/external-secrets?modal=install) <br>
 [External Secrets Operator](https://external-secrets.io/latest/)

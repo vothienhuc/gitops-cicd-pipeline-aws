@@ -1,0 +1,3 @@
+resources:
+  - nodejs_deployment.yaml
+  - loadbalancer.yaml

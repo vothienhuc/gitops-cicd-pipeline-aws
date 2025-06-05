@@ -45,10 +45,10 @@ To support dynamic Persistent Volume provisioning for stateful workloads such as
 - **volumeBindingMode**: WaitForFirstConsumer ensures volumes are created only after the pod is scheduled, ensuring proper AZ alignment.
 - Used by both Jenkins (for persistent job/workspace data) and MySQL (to store database files securely).
 
-> 📂 YAML file location: You can find the StorageClass definition in [`/manifests/storageclass.yaml`](./manifests/storageClass.yaml)
+> 📂 YAML file location: You can find the StorageClass definition in [`/Manifests/storageclass.yaml`](./Manifests/storageClass.yaml)
 # ⚙️ Continuous Integration – Jenkins
 -----> jenkins part
-- installations and setup via  helm and  mentions to values.yaml if used
+- installations and setup via  Helm and  mentions to values.yaml if used
 -  Jenkins UI Configuration and mentions to credentials that u used in pipeline 
 -  Jenkins Pipeline stages
 
@@ -74,14 +74,14 @@ This section describes the deployment process for a Node.js web application inte
 Before installing the MySQL Helm chart from DockerHub OCI registry, authenticated using:
 
 ```bash
-helm registry login registry-1.docker.io
+Helm registry login registry-1.docker.io
 Username: <your_dockerhub_username>
 Password: <your_dockerhub_password_or_token>
 
 ```
 **📦 Installation Command**
 ```bash 
-helm install my-mysql oci://registry-1.docker.io/bitnamicharts/mysql -f mysql_values.yaml --namespace default
+Helm install my-mysql oci://registry-1.docker.io/bitnamicharts/mysql -f mysql_values.yaml --namespace default
 ```
 **⚙️ mysql Configuration**
 
@@ -92,7 +92,7 @@ To securely configure MySQL authentication within your Kubernetes cluster, we us
 `mysql-root-password`,`mysql_hostname`,`mysql-username`,`mysql-password`,`mysql_port`
 - so we use  `mysql_values.yaml` to override default Bitnami MySQL Helm chart settings. It instructs the chart to use an existing Kubernetes Secret `mysql-k8s-secret` and maps specific keys for the credentials.
 
-📁 File Location: [HELM/mysql_values.yaml](./HELM/mysql_values.yaml)
+📁 File Location: [Helm/mysql_values.yaml](./Helm/mysql_values.yaml)
 
 ✅ Validation
 Verified the MySQL deployment using a MySQL client pod:
@@ -102,7 +102,7 @@ kubectl run my-mysql-client --rm --tty -i --restart='Never' --image  docker.io/b
 ### ⚡ 2. Redis Deployment
 **📦 Installation Command**
 ```bash
-helm install redis bitnami/redis --set auth.enabled=false --namespace default
+Helm install redis bitnami/redis --set auth.enabled=false --namespace default
 ```
 We created a secret containing the Redis hostname and port, which is injected as environment variables into the Node.js application to enable seamless connection to the Redis service.
 ### 🔧 3. Node.js Application
@@ -131,7 +131,7 @@ docker push 339007232055.dkr.ecr.us-east-1.amazonaws.com/my-ecr:latest
 
 
 #### 🚀 Deployment via Kubernetes
-- The deployment manifest for the Node.js application is defined under the [manifests](./manifests) directory.
+- The deployment manifest for the Node.js application is defined under the [Manifests](./Manifests) directory.
 - This includes:
     - **nodejs_deployment.yaml:** Defines the Kubernetes Deployment for the Node.js app.
     - **service.yaml:** Defines the Service resource with LoadBalancer type to expose the application externally.
