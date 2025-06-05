@@ -141,7 +141,7 @@ docker push 339007232055.dkr.ecr.us-east-1.amazonaws.com/my-ecr:latest
 - These values (such as `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, etc.) are securely sourced from Kubernetes Secrets and injected into the Node.js pod to enable seamless connectivity to these backend services.
 - The secrets themselves are dynamically synced from **AWS Secrets Manager** using the **External Secrets Operator (ESO).**
 
-## 🌐 OUTPUT
+## 🌐 Application Access
 
 ![](./images/App.gif)
 
