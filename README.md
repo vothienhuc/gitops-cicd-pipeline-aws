@@ -7,7 +7,7 @@ This project demonstrates the creation of a **production-ready GitOps CI/CD pipe
 # 🔷 Infrastructure Architecture 
 
 ----> diagram here 
-# ✅ 1. Infrastructure Provisioning – Terraform
+# ✅  Infrastructure Provisioning – Terraform
 
 Provisioned using only Terraform:
 
