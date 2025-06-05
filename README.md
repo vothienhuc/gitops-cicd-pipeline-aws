@@ -46,27 +46,27 @@ To support dynamic Persistent Volume provisioning for stateful workloads such as
 - Used by both Jenkins (for persistent job/workspace data) and MySQL (to store database files securely).
 
 > 📂 YAML file location: You can find the StorageClass definition in [`/manifests/storageclass.yaml`](./manifests/storageClass.yaml)
-## ⚙️ Continuous Integration – Jenkins
+# ⚙️ Continuous Integration – Jenkins
 -----> jenkins part
 - installations and setup via  helm and  mentions to values.yaml if used
 -  Jenkins UI Configuration and mentions to credentials that u used in pipeline 
 -  Jenkins Pipeline stages
 
-## 🚀 Continuous Deployment – ArgoCD + Argo Image Updater
+# 🚀 Continuous Deployment – ArgoCD + Argo Image Updater
 ------> ArgoCD
 -  ArgoCD Installation via Helm
 -  GitOps Setup with ArgoCD andd support with a digram or image  for final configurations
 - Argo Image Updater Configuration and final ouput image
 - if used writeback git strategy , Show working screenshot or Git commit history to prove automated updates
 
-## 🔐 Secrets Management – External Secrets Operator 
+# 🔐 Secrets Management – External Secrets Operator 
 ------------>ESO
 - ESO Installation via Helm
 - AWS Secrets Manager Integration 
 - Secret Syncing to EKS
 - mentions for yaml files where they exist 
 
-## 🐍 Application – Node.js + MySQL + Redis
+# 🐍 Application – Node.js + MySQL + Redis
 This section describes the deployment process for a Node.js web application integrated with MySQL and Redis inside the EKS cluster.
 ### 🛢️ 1. MySQL Deployment via Bitnami Helm Chart
 **🧪 Authentication Prerequisite**
