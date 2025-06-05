@@ -11,13 +11,13 @@ This project demonstrates the creation of a **production-ready GitOps CI/CD pipe
 
 Provisioned using only Terraform:
 
-- 🔹 **VPC** with 3 public and 3 private subnets across 3 Availability Zones.
-- 🔹 **NAT Gateway**, **Internet Gateway**, and **Route Tables**.
+- **VPC** with 3 public and 3 private subnets across 3 Availability Zones.
+- **NAT Gateway**, **Internet Gateway**, and **Route Tables**.
 
--  🔹 **Amazon EKS Cluster**
+- **Amazon EKS Cluster**
     - Control Plane and Managed Node Groups inside **private subnets**.
     - **EBS CSI driver** enabled for secure service integrations and dynamic volume provisioning
-- 🔹 **OIDC Provider** enabled to allow secure IAM roles for Kubernetes service accounts (IRSA).  
+- **OIDC Provider** enabled to allow secure IAM roles for Kubernetes service accounts (IRSA).  
 ## 🔐 OIDC Provider Configuration for IRSA (IAM Roles for Service Accounts)
 To enable secure and fine-grained access control between Kubernetes service accounts and AWS services, we configured an OIDC (OpenID Connect) provider for the EKS cluster
 ### ✅ OIDC Provider Creation
