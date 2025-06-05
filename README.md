@@ -53,11 +53,48 @@ To support dynamic Persistent Volume provisioning for stateful workloads such as
 -  Jenkins Pipeline stages
 
 # 🚀 Continuous Deployment – ArgoCD + Argo Image Updater
-------> ArgoCD
--  ArgoCD Installation via Helm
--  GitOps Setup with ArgoCD andd support with a digram or image  for final configurations
-- Argo Image Updater Configuration and final ouput image
-- if used writeback git strategy , Show working screenshot or Git commit history to prove automated updates
+
+- Create ArgoCD namespace
+```bash
+kubectl create ns argocd
+```
+-  ArgoCD installation via Helm
+```bash
+helm repo add argo https://argoproj.github.io/argo-helm
+helm install -n argocd argocd argo/argo-cd --version 8.0.14
+```
+- Get ArgoCD initial password
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+- Setup ArgoCD application
+
+![ArgoApp](Images/ArgoApp.png)
+
+- Install ArgoCD image updater with values 
+```bash
+helm install -n argocd argocd-image-updater argo/argocd-image-updater --version 0.12.2 -f Helm/argo_imageupdater_values.yaml
+```
+
+- Add image updater annotations
+```yaml
+argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
+argocd-image-updater.argoproj.io/image-list: 339007232055.dkr.ecr.us-east-1.amazonaws.com/my-ecr:1.x
+argocd-image-updater.argoproj.io/myapp.update-strategy: semver
+```
+![Annotations](Images/Annotations.png)
+
+- Wait For the image update event
+
+![ImageUpdater](Images/ImageUpdater.png)
+
+- ArgoCD pushes the new version to Github and updates the Deployment
+
+![ArgoCommit](Images/ArgoCommit.png)
+
+![NewVersion](Images/NewVersion.png)
+
+
 
 # 🔐 Secrets Management – External Secrets Operator 
 ------------>ESO
@@ -143,5 +180,5 @@ docker push 339007232055.dkr.ecr.us-east-1.amazonaws.com/my-ecr:latest
 
 ## 🌐 Application Access
 
-![](./images/App.gif)
+![](./Images/App.gif)
 
