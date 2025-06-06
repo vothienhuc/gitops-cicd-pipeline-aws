@@ -91,8 +91,9 @@ resource "aws_iam_role" "kaniko_role" {
 # ///////////////////////////// Kaniko Policy /////////////////////
 resource "aws_iam_policy" "ecr_kaniko" {
   name = "ECRKanikoAccessPolicy"
+  description = "Policy to allow Kaniko to push images to ECR"
   policy = jsonencode({
-    version = "2012-10-17"
+    Version = "2012-10-17"
     Statement = [
       {
         Effect = "Allow"
@@ -105,7 +106,7 @@ resource "aws_iam_policy" "ecr_kaniko" {
           "ecr:UploadLayerPart",
           "ecr:CompleteLayerUpload"
         ],
-        Resource = ""
+        Resource = "*"
       }
     ]
   })
