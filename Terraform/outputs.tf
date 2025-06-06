@@ -4,3 +4,8 @@ output "vpc_id" {
   
 }
 
+output "eks_oidc_provider_url" {
+  description = "The URL of the OIDC provider"
+  value       = module.OIDC.eks_oidc_provider_url
+  
+}

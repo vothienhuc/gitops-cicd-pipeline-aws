@@ -1,6 +1,6 @@
 #  ////////////////////////////// My SQL Secret Manager ///////////////////////////// 
 resource "aws_secretsmanager_secret" "mysql_secret" {
-  name = "mysql-credentials-12"
+  name = "mysql-credentials-secret"
 }
 
 resource "aws_secretsmanager_secret_version" "mysql_secret_version" {
@@ -15,7 +15,7 @@ resource "aws_secretsmanager_secret_version" "mysql_secret_version" {
 }
 #  ////////////////////////////// Redis Secret Manager ///////////////////////////// 
 resource "aws_secretsmanager_secret" "redis_secret" {
-  name = "redis-credentials-12"
+  name = "redis-credentials-secret"
 }
 
 resource "aws_secretsmanager_secret_version" "redis_secret_version" {

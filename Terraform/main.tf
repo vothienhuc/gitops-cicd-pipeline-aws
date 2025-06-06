@@ -21,6 +21,8 @@ module "Secrets" {
   source         = "./Modules/secretManager"
   mySQL_username = var.mySQL_username
   mySQL_password = var.mySQL_password
+  mySQL_hostname = var.mySQL_hostname
+  
 
 }
 
