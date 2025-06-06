@@ -1,22 +1,21 @@
 #  ////////////////////////////// My SQL Secret Manager ///////////////////////////// 
 resource "aws_secretsmanager_secret" "mysql_secret" {
-  name = "mysql-credentials-1"
+  name = "mysql-credentials-12"
 }
 
 resource "aws_secretsmanager_secret_version" "mysql_secret_version" {
   secret_id = aws_secretsmanager_secret.mysql_secret.id
   secret_string = jsonencode({
   mysql-root-password = var.mySQL_password
-    mysql_hostname      = "my-mysql"  
-    mysql-username      = "root"
+    mysql_hostname      = var.mySQL_hostname  
+    mysql-username      = var.mySQL_username
     mysql-password      = var.mySQL_password
     mysql_port          = "3306"
   })
 }
-
 #  ////////////////////////////// Redis Secret Manager ///////////////////////////// 
 resource "aws_secretsmanager_secret" "redis_secret" {
-  name = "redis-credentials-1"
+  name = "redis-credentials-12"
 }
 
 resource "aws_secretsmanager_secret_version" "redis_secret_version" {

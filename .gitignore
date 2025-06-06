@@ -1,7 +1,5 @@
 # Terraform
 .terraform/
-*.tfstate
-*.tfstate.*
 *.auto.tfvars
 node_modules
 npm-debug.log

@@ -6,7 +6,6 @@ module "Network" {
   Private_Subnets = var.network_private_subnets
 }
 
-
 module "EKS_Cluster" {
   source          = "./Modules/eks"
   eks_subnets_ids = values(module.Network.PrivSubID)

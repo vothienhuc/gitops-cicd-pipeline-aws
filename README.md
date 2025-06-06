@@ -220,13 +220,6 @@ env:
 
 This setup will allow the **External Secrets Operator** to automatically sync secrets from **AWS Secrets Manager** into your Kubernetes cluster and make them available to your applications securely.
 
----
-
-## References:
-
-[Artifact hub](https://artifacthub.io/packages/Helm/external-secrets-operator/external-secrets?modal=install) <br>
-[External Secrets Operator](https://external-secrets.io/latest/)
-
 # 🐍 Application – Node.js + MySQL + Redis
 
 This section describes the deployment process for a Node.js web application integrated with MySQL and Redis inside the EKS cluster.
@@ -327,3 +320,10 @@ docker push 339007232055.dkr.ecr.us-east-1.amazonaws.com/my-ecr:latest
 ## 🌐 Application Access
 
 ![](./Images/App.gif)
+
+---
+
+# References:
+
+[Artifact hub](https://artifacthub.io/packages/Helm/external-secrets-operator/external-secrets?modal=install) <br>
+[External Secrets Operator](https://external-secrets.io/latest/)
