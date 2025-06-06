@@ -30,8 +30,7 @@ module "EBS_CSI_Driver" {
   oidc_provider_arn     = module.OIDC.oidc_provider_arn
   oidc_provider_url     = module.OIDC.eks_oidc_provider_url
   namespace             = var.ebs_csi_driver_namespace
-  service_account_name  = var.ebs_csi_driver_service_account_name
-  depends_on            = [module.EKS_Cluster, module.OIDC]
+  service_account_name  = var.ebs_csi_driver_service_account_name 
 }
 
 module "OIDC" {
