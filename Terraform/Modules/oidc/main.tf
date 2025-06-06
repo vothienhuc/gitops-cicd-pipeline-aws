@@ -30,7 +30,8 @@ resource "aws_iam_policy" "external_secrets_policy" {
         Effect   = "Allow",
         Action   = [
           "secretsmanager:GetSecretValue",
-          "secretsmanager:DescribeSecret"
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:ListSecrets",
         ],
         Resource = "*"
       }
@@ -48,7 +49,7 @@ resource "aws_iam_role" "external_secrets_irsa" {
       {
         Effect = "Allow",
         Principal = {
-          Federated = aws_iam_openid_connect_provider.eks_oidc_provider.arn
+          Federated = "arn:aws:iam::339007232055:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/48DC87EFF767AF96E3E66B49849F3CC0"
         },
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
@@ -60,7 +61,7 @@ resource "aws_iam_role" "external_secrets_irsa" {
     ]
   })
 }
-#
+
 resource "aws_iam_role_policy_attachment" "attach_external_secrets_policy" {
   role       = aws_iam_role.external_secrets_irsa.name
   policy_arn = aws_iam_policy.external_secrets_policy.arn

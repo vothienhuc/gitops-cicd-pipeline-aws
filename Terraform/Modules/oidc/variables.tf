@@ -7,10 +7,10 @@ variable "region" {
   default = "us-east-1"
 }
 
-variable "service_account_name" {
-  default = "jenkins-kaniko-sa"
-}
+# variable "service_account_name" {
+#   default = "jenkins-kaniko-sa"
+# }
 
-variable "namespace" {
-  default = "jenkins"
-}
+# variable "namespace" {
+#   default = "jenkins"
+# }
