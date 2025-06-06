@@ -43,9 +43,19 @@ controller:
             secret:
               secretName: regcred
 
+  serviceAccount:
+    create: false
+    name: jenkins-kaniko-sa
+    
+  serviceType: loadBalancer
+
+
   persistence:
     enabled: true
     storageClass: gp3
+    accessModes:
+      - ReadWriteOnce
+    annotations: {}
     size: 8Gi
 
 rbac:
