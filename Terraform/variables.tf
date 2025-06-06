@@ -60,3 +60,4 @@ variable "ebs_csi_driver_service_account_name" {
   description = "The name of the Kubernetes service account for the EBS CSI Driver"
   default     = "ebs-csi-controller-sa"
 }
+

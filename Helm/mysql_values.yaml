@@ -1,0 +1,18 @@
+auth:
+  existingSecret: mysql-k8s-secret
+  secretKeys:
+    rootPasswordKey: mysql-root-password
+    usernameKey: mysql-username
+    passwordKey: mysql-password
+  database: sqlDB
+service:
+  type: ClusterIP
+  port: 3306
+primary:
+  persistence:
+    enabled: true
+    storageClass: gp3
+    size: 8Gi
+initdbScripts:
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS sqlDB;
