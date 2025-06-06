@@ -6,7 +6,6 @@ module "Network" {
   Private_Subnets = var.network_private_subnets
 }
 
-
 module "EKS_Cluster" {
   source          = "./Modules/eks"
   eks_subnets_ids = values(module.Network.PrivSubID)
@@ -31,12 +30,8 @@ module "EBS_CSI_Driver" {
   oidc_provider_arn     = module.OIDC.oidc_provider_arn
   oidc_provider_url     = module.OIDC.eks_oidc_provider_url
   namespace             = var.ebs_csi_driver_namespace
-<<<<<<< HEAD
   service_account_name  = var.ebs_csi_driver_service_account_name
   depends_on            = [module.EKS_Cluster, module.OIDC]
-=======
-  service_account_name  = var.ebs_csi_driver_service_account_name 
->>>>>>> e4356e356a3230453e8a58f5b86aa846019b9a55
 }
 
 module "OIDC" {
