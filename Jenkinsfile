@@ -50,7 +50,7 @@ spec:
     environment {
         ECR_REGISTRY = "339007232055.dkr.ecr.us-east-1.amazonaws.com"
         IMAGE_REPO = "my-ecr"
-        IMAGE_TAG = "v1.1.${BUILD_NUMBER}"
+        IMAGE_TAG = "1.1.${BUILD_NUMBER}"
     }
     
     stages {
