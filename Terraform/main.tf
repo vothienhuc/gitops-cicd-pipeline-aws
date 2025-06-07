@@ -22,8 +22,6 @@ module "Secrets" {
   mySQL_username = var.mySQL_username
   mySQL_password = var.mySQL_password
   mySQL_hostname = var.mySQL_hostname
-  
-
 }
 
 module "EBS_CSI_Driver" {

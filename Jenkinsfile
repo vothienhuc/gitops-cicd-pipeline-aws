@@ -1,50 +1,95 @@
-pipeline{
-    agent any
-
-    environment {
-        AWS_REGION = 'us-east-1'
-        ECR_REGISTRY = '339007232055.dkr.ecr.us-east-1.amazonaws.com'
-        ECR_REPOSITORY = 'my-ecr'
-        IMAGE_TAG = "${env.BUILD_ID}"
-        GIT_REPO = 'https://github.com/mahmoud254/jenkins_nodejs_example.git'
+pipeline {
+    agent {
+        kubernetes {
+            label 'nodejs-pipeline'
+            defaultContainer 'jnlp'
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  serviceAccountName: jenkins-kaniko-sa
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    command:
+    - sleep
+    args:
+    - 99d
+    env:
+    - name: AWS_DEFAULT_REGION
+      value: "us-east-1"
+    volumeMounts:
+    - name: workspace-volume
+      mountPath: /home/jenkins/workspace
+  - name: git
+    image: alpine/git:latest
+    command:
+    - sleep
+    args:
+    - 99d
+    volumeMounts:
+    - name: workspace-volume
+      mountPath: /home/jenkins/workspace
+  - name: jnlp
+    image: jenkins/inbound-agent:3309.v27b_9314fd1a_4-1
+    env:
+    - name: JENKINS_URL
+      value: http://jenkins.jenkins.svc.cluster.local:8080/
+    - name: JENKINS_TUNNEL
+      value: jenkins.jenkins.svc.cluster.local:50000
+    volumeMounts:
+    - name: workspace-volume
+      mountPath: /home/jenkins/workspace
+  volumes:
+  - name: workspace-volume
+    emptyDir: {}
+"""
+        }
     }
+    
+    environment {
+        ECR_REGISTRY = "339007232055.dkr.ecr.us-east-1.amazonaws.com"
+        IMAGE_REPO = "my-ecr"
+        IMAGE_TAG = "v1.1.${BUILD_NUMBER}"
+    }
+    
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                echo 'Cloning...'
-                git url: "${GIT_REPO}", branch: 'master'
-            }
-        }
-        stage('Install Docker') {
-            steps {
-                echo 'Installing docker...'
-                sh '''
-                apt-get update
-                apt-get install -y docker.io
-                systemctl start docker
-                systemctl enable docker
-                '''
-            }
-        }
-        stage('Build Docker Image') {
-            steps {
-                echo 'Building Docker image...'
-                script {
-                    docker.build("${ECR_REPOSITORY}:${IMAGE_TAG}", "--build-arg AWS_REGION=${AWS_REGION} .")
+                container('git') {
+                    git branch: 'master', url: 'https://github.com/mahmoud254/jenkins_nodejs_example.git'
                 }
             }
         }
-        stage('Push to ECR') {
+        
+        stage('Build and Push Image') {
             steps {
-                echo 'Pushing To ECR...'
-                withAWSCredentials('aws-credentials') {
+                container('kaniko') {
                     script {
-                        sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
-                        sh "docker tag ${ECR_REPOSITORY}:${IMAGE_TAG} ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
-                        sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+                        sh """
+                            /kaniko/executor \\
+                                --dockerfile=dockerfile \\
+                                --context=. \\
+                                --destination=${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG} \\
+                                --destination=${ECR_REGISTRY}/${IMAGE_REPO}:latest \\
+                                --cache=true \\
+                                --cache-ttl=24h
+                        """
                     }
                 }
             }
+        }
+    }
+    
+    post {
+        always {
+            echo "Build completed"
+        }
+        success {
+            echo "Image pushed successfully to ${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG}"
+        }
+        failure {
+            echo "Build failed"
         }
     }
 }

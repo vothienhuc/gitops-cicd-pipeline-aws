@@ -6,57 +6,33 @@ controller:
     runAsUser: 1000
     runAsGroup: 1000
     runAsNonRoot: true
-
   installPlugins:
-    - kubernetes:1.31
-    - workflow-aggregator:2.6
-    - git:5.14.4
-    - configuration-as-code:1954.v57a_5e1f7e_2023-11-01
-    - credentials:184.v5d2b_aac
-    - plain-credentials:1.8
+    - kubernetes:4029.v5712230ccb_f8
+    - workflow-aggregator:596.v8c21c963d92d
+    - git:5.0.0
+    - configuration-as-code:1625.v27444588cc3d
+    - credentials:1271.v54b_1c1c6388a_
+    - plain-credentials:143.v1b_df8b_d3b_e48
     - amazon-ecr:1.7
     - docker-workflow:563.vd5d2e5c4007f
-    - pipeline-utility-steps:2.26
-
+    - pipeline-utility-steps:2.13.0
   jenkinsUrl: http://jenkins.jenkins.svc.cluster.local:8080
-  agent:
-    podTemplates:
-      kaniko:
-        label: kaniko
-        containers:
-          - name: kaniko
-            image: gcr.io/kaniko-project/executor:latest
-            command: ["/busybox/sh", "-c"]
-            args:
-              - >
-                /kaniko/executor
-                --dockerfile=/workspace/Dockerfile
-                --context=/workspace
-                --destination=$(DESTINATION_IMAGE)
-                --insecure
-                --skip-tls-verify
-            volumeMounts:
-              - name: kaniko-secret
-                mountPath: /kaniko/.docker
-        volumes:
-          - name: kaniko-secret
-            secret:
-              secretName: regcred
-
+  
+  
   serviceAccount:
     create: false
     name: jenkins-kaniko-sa
     
-  serviceType: loadBalancer
-
-
+  serviceType: LoadBalancer
   persistence:
     enabled: true
-    storageClass: gp3
+    storageClass: "gp3"
     accessModes:
       - ReadWriteOnce
-    annotations: {}
     size: 8Gi
 
 rbac:
   create: true
+
+agent:
+  enabled: true
