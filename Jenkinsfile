@@ -57,7 +57,7 @@ spec:
         stage('Checkout') {
             steps {
                 container('git') {
-                    git branch: 'main', url: 'https://github.com/mahmoud254/jenkins_nodejs_example.git'
+                    git branch: 'main', url: 'https://github.com/shymaagamal/End-to-End-Pipeline-on-AWS.git'
                 }
             }
         }
