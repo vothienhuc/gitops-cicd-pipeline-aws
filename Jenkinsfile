@@ -62,23 +62,27 @@ spec:
             }
         }
 
-        /*stage('Check Commit Author') {
+        stage('Check Commit Author') {
             steps {
-                container('git') {
-                    script {
-                        sh 'git config --global --add safe.directory /home/jenkins/agent/workspace/nodejs-pipeline'
-                        def author = sh(script: "git log -1 --pretty=format:'%an <%ae>'", returnStdout: true).trim()
-                        echo "Latest commit author: ${author}"
+            container('git') {
+                script {
+                    // Ensure Git works with Jenkins' workspace
+                    sh 'git config --global --add safe.directory /home/jenkins/workspace'
 
-                        if (author == 'argocd-image-updater <noreply@argoproj.io>') {
-                            echo "Aborting pipeline after ArgoCD auto-commit"
-                            currentBuild.result = 'ABORTED'
-                            error('Pipeline aborted due to ArgoCD auto-commit')
-                        }
-                    }
+                    // Get the commit message instead of the author email
+                    def commitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
+                    echo "Latest commit message: ${commitMessage}"
+
+                    if (commitMessage.contains("[argocd-image-updater]")) {
+                        echo "Aborting pipeline after ArgoCD auto-commit"
+                        currentBuild.result = 'ABORTED'
+                        error('Pipeline aborted due to ArgoCD auto-commit')
                 }
             }
-        }*/
+        }
+    }
+}
+
 
         stage('Build and Push Image') {
             steps {
