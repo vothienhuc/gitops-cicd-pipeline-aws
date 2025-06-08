@@ -69,14 +69,16 @@ spec:
                     // Ensure Git works with Jenkins' workspace // Mark the current working directory as safe
                     sh 'git config --global --add safe.directory $(pwd)'
 
-                    // Now this will work without the "dubious ownership" error
-                    sh 'git log -1 --pretty=%B'
+                    // Get and print latest commit author name and email
+                    def commitAuthor = sh(script: 'git log -1 --pretty=format:"%an <%ae>"', returnStdout: true).trim()
+                    echo "Latest commit author: ${commitAuthor}"
 
                     // Get the commit message instead of the author email
                     def commitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
-                    echo "Latest commit message: ${commitMessage}"
+                    def firstLine = commitMessage.readLines()[0].trim()
+                    echo "First line of commit message: ${firstLine}"
 
-                    if (commitMessage.contains("[build: automatic update of nodeapp]")) {
+                    if (firstLine.contains("[build: automatic update of nodeapp]")) {
                         echo "Aborting pipeline after ArgoCD auto-commit"
                         currentBuild.result = 'ABORTED'
                         error('Pipeline aborted due to ArgoCD auto-commit')
