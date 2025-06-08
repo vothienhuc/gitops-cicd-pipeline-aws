@@ -46,13 +46,13 @@ spec:
 """
         }
     }
-    
+
     environment {
         ECR_REGISTRY = "339007232055.dkr.ecr.us-east-1.amazonaws.com"
         IMAGE_REPO = "my-ecr"
         IMAGE_TAG = "1.${BUILD_NUMBER}"
     }
-    
+
     stages {
         stage('Checkout') {
             steps {
@@ -61,15 +61,15 @@ spec:
                 }
             }
         }
-        
+
         stage('Build and Push Image') {
             steps {
                 container('kaniko') {
                     script {
                         sh """
                             /kaniko/executor \\
-                                --dockerfile=dockerfile \\
-                                --context=. \\
+                                --dockerfile=Applications/Dockerfile \\
+                                --context=Applications \\
                                 --destination=${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG} \\
                                 --destination=${ECR_REGISTRY}/${IMAGE_REPO}:latest \\
                                 --cache=true \\
@@ -80,7 +80,7 @@ spec:
             }
         }
     }
-    
+
     post {
         always {
             echo "Build completed"
