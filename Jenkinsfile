@@ -73,10 +73,9 @@ spec:
                         if (author == 'argocd-image-updater <noreply@argoproj.io>') {
                             echo "Commit from Argo CD Image Updater detected — skipping pipeline."
                             currentBuild.result = 'SUCCESS'
-                            // Exit pipeline early
-                            echo "test before"
-                            return
-                            echo "test After"
+                            echo "Aborting pipeline after ArgoCD auto-commit"
+                            currentBuild.result = 'ABORTED'
+                            throw new FlowInterruptedException(Result.ABORTED)
                         }
                     }
                 }
