@@ -74,7 +74,9 @@ spec:
                             echo "Commit from Argo CD Image Updater detected — skipping pipeline."
                             currentBuild.result = 'SUCCESS'
                             // Exit pipeline early
+                            echo "test before"
                             return
+                            echo "test After"
                         }
                     }
                 }
