@@ -78,7 +78,7 @@ spec:
                     def firstLine = commitMessage.readLines()[0].trim()
                     echo "First line of commit message: ${firstLine}"
 
-                    if (firstLine.contains("[build: automatic update of nodeapp]")) {
+                    if (firstLine.contains("build: automatic update of nodeapp")) {
                         echo "Aborting pipeline after ArgoCD auto-commit"
                         currentBuild.result = 'ABORTED'
                         error('Pipeline aborted due to ArgoCD auto-commit')
