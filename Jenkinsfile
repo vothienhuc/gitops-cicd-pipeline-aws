@@ -62,6 +62,24 @@ spec:
             }
         }
 
+        stage('Check Commit Author') {
+            steps {
+                container('git') {
+                    script {
+                        def author = sh(script: "git log -1 --pretty=format:'%an <%ae>'", returnStdout: true).trim()
+                        echo "Latest commit author: ${author}"
+
+                        if (author == 'argocd-image-updater <noreply@argoproj.io>') {
+                            echo "Commit from Argo CD Image Updater detected — skipping pipeline."
+                            currentBuild.result = 'SUCCESS'
+                            // Exit pipeline early
+                            return
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Build and Push Image') {
             steps {
                 container('kaniko') {
