@@ -6,7 +6,7 @@ This project demonstrates the creation of a **production-ready GitOps CI/CD pipe
 
 # 🔷 Infrastructure Architecture
 
-----> diagram here
+![Diagram](Images/Diagram.png)
 
 # ✅ Infrastructure Provisioning – Terraform
 
@@ -128,13 +128,13 @@ This guide explains how to set up the **External Secrets Operator** with **AWS S
 ### 1️⃣ **Add the Helm Repository:**
 
 ```bash
-Helm repo add external-secrets-operator https://charts.external-secrets.io/
+helm repo add external-secrets-operator https://charts.external-secrets.io/
 ```
 
 ### 2️⃣ **Install the External Secrets Operator:**
 
 ```bash
-Helm install external-secrets external-secrets/external-secrets \
+helm install external-secrets external-secrets/external-secrets \
   -n external-secrets --create-namespace \
   --set serviceAccount.name=external-secrets \
   --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::<ACCOUNT_ID>:role/external-secrets-irsa\
@@ -231,7 +231,7 @@ This section describes the deployment process for a Node.js web application inte
 Before installing the MySQL Helm chart from DockerHub OCI registry, authenticated using:
 
 ```bash
-Helm registry login registry-1.docker.io
+helm registry login registry-1.docker.io
 Username: <your_dockerhub_username>
 Password: <your_dockerhub_password_or_token>
 
@@ -240,7 +240,7 @@ Password: <your_dockerhub_password_or_token>
 **📦 Installation Command**
 
 ```bash
-Helm install my-mysql oci://registry-1.docker.io/bitnamicharts/mysql -f mysql_values.yaml --namespace default
+helm install my-mysql oci://registry-1.docker.io/bitnamicharts/mysql -f mysql_values.yaml --namespace default
 ```
 
 **⚙️ mysql Configuration**
@@ -267,7 +267,7 @@ kubectl run my-mysql-client --rm --tty -i --restart='Never' --image  docker.io/b
 **📦 Installation Command**
 
 ```bash
-Helm install redis bitnami/redis --set auth.enabled=false --namespace default
+helm install redis bitnami/redis --set auth.enabled=false --namespace default
 ```
 
 We created a secret containing the Redis hostname and port, which is injected as environment variables into the Node.js application to enable seamless connection to the Redis service.
