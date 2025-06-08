@@ -66,8 +66,11 @@ spec:
             steps {
             container('git') {
                 script {
-                    // Ensure Git works with Jenkins' workspace
-                    sh 'git config --global --add safe.directory /home/jenkins/workspace'
+                    // Ensure Git works with Jenkins' workspace // Mark the current working directory as safe
+                    sh 'git config --global --add safe.directory $(pwd)'
+
+                    // Now this will work without the "dubious ownership" error
+                    sh 'git log -1 --pretty=%B'
 
                     // Get the commit message instead of the author email
                     def commitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
