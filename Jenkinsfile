@@ -62,7 +62,7 @@ spec:
             }
         }
 
-        stage('Check Commit Author') {
+       /* stage('Check Commit Author') {
             steps {
                 container('git') {
                     script {
@@ -78,7 +78,7 @@ spec:
                     }
                 }
             }
-        }
+        }*/
 
         stage('Build and Push Image') {
             steps {
