@@ -66,6 +66,7 @@ spec:
             steps {
                 container('git') {
                     script {
+                        sh 'git config --global --add safe.directory /home/jenkins/agent/workspace/nodejs-pipeline'
                         def author = sh(script: "git log -1 --pretty=format:'%an <%ae>'", returnStdout: true).trim()
                         echo "Latest commit author: ${author}"
 
