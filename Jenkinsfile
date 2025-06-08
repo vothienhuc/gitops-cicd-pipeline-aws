@@ -70,8 +70,7 @@ spec:
                             /kaniko/executor \\
                                 --dockerfile=Applications/Dockerfile \\
                                 --context=Applications \\
-                                --destination=${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG} \\
-                                --destination=${ECR_REGISTRY}/${IMAGE_REPO}:latest \\
+                                --destination=${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG}\\
                                 --cache=true \\
                                 --cache-ttl=24h
                         """
