@@ -76,16 +76,15 @@ spec:
                     def commitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
                     echo "Latest commit message: ${commitMessage}"
 
-                    if (commitMessage.contains("[argocd-image-updater]")) {
+                    if (commitMessage.contains("[build: automatic update of nodeapp]")) {
                         echo "Aborting pipeline after ArgoCD auto-commit"
                         currentBuild.result = 'ABORTED'
                         error('Pipeline aborted due to ArgoCD auto-commit')
-                }
+                    }
             }
         }
     }
 }
-
 
         stage('Build and Push Image') {
             steps {
