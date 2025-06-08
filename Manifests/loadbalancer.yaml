@@ -5,7 +5,6 @@ metadata:
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
     service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
-    service.beta.kubernetes.io/aws-load-balancer-subnets: "subnet-03433c482115012b9,subnet-076347a3c0db47689,subnet-03ba9dc248808c1b6"
 spec:
   selector:
     app: node-app
