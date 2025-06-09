@@ -464,7 +464,7 @@ kubectl get secret <SECRET_NAME>  -o jsonpath="{.data}" | jq 'to_entries[] | "\(
 ```
 
 ---
-
+![secrets](Images/secret.png)
 ## 🛠 **Using the Secrets in Your Application**
 
 Now, in your _Deployment_ manifest, reference the synced secret:
