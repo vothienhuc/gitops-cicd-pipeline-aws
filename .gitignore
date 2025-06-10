@@ -3,3 +3,5 @@
 *.auto.tfvars
 node_modules
 npm-debug.log
+terraform.tfstate
+terraform.auto.tfvars

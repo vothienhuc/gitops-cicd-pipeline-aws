@@ -23,27 +23,36 @@ Provisioned using only Terraform:
 ---
 
 ### ✅ Application Code Repo – NodeJs
+
 Clone the repository to get the application code:
+
 ```bash
 git clone https://github.com/MalakGhazy/nodejs-application.git
 cd nodejs-application
 ```
+
 > [!NOTE]
 > This repository contains the full source code for the Node.js application.
 
-### ✅ Login to EKS Cluster  
+### ✅ Login to EKS Cluster
+
 Use the following command to configure access to your EKS cluster:
+
 ```bash
 aws eks update-kubeconfig --name < CLUSTER_NAME> --region <CLUSTER_REGION>
 ```
+
 To ensure the cluster was added to your ~/.kube/config file:
+
 ```bash
-kubectl config get-contexts 
+kubectl config get-contexts
 ```
+
 > [!NOTE]
-> The cluster marked with an asterisk (*) is your current default context. Use it to confirm you're working on the correct cluster.
+> The cluster marked with an asterisk (\*) is your current default context. Use it to confirm you're working on the correct cluster.
 
 ---
+
 ## 🔐 OIDC Provider Configuration for IRSA (IAM Roles for Service Accounts)
 
 To enable secure and fine-grained access control between Kubernetes service accounts and AWS services, we configured an OIDC (OpenID Connect) provider for the EKS cluster
@@ -92,58 +101,40 @@ Jenkins is deployed on an AWS EKS cluster using Helm, a Kubernetes package manag
 
 **Installation Steps**
 
-*1- Add Jenkins Helm Repository:*
+_1- Add Jenkins Helm Repository:_
+
 ```bash
 helm install my-jenkins bitnami/jenkins --version 13.6.8
 helm repo update
 ```
 
-*2-Create a Namespace:*
+_2-Create a Namespace:_
 Jenkins will be deployed in the jenkins namespace to isolate it from other workloads.
+
 ```bash
 kubectl create namespace jenkins
 ```
 
-*3-Use the Provided values.yaml File:* 
+_3-Use the Provided values.yaml File:_
 The following values.yaml file is used to customize the Jenkins deployment:
 
 Key Notes:
 
-
-
-
-
 Image: Uses jenkins/jenkins:lts-jdk17 for a stable, long-term support version with JDK 17.
-
-
 
 Security Context: Runs the Jenkins container as a non-root user (runAsUser: 1000, runAsGroup: 1000) for improved security.
 
-
-
 Plugins: Installs plugins for Kubernetes integration, Git operations, pipeline support, credentials management, and AWS ECR interaction.
-
-
 
 Jenkins URL: Configured as http://jenkins.jenkins.svc.cluster.local:8080 for internal agent communication.
 
-
-
 Service Account: Uses the pre-existing jenkins-kaniko-sa service account, which must be configured with an IAM role for ECR access (e.g., arn:aws:iam::339007232055:role/JenkinsKanikoRole).
-
-
 
 Service Type: LoadBalancer exposes Jenkins externally via an AWS Elastic Load Balancer (ELB) for UI access.
 
-
-
 Persistence: Enables an 8Gi persistent volume using the gp3 storage class (AWS EBS) to store Jenkins configuration.
 
-
-
 RBAC: Creates necessary role-based access control rules for Jenkins to interact with the Kubernetes cluster.
-
-
 
 Agent: Enables Kubernetes agents to run pipeline jobs in pods.
 Install Jenkins via Helm:
@@ -157,18 +148,16 @@ Get the Jenkins pod name: kubectl get pods -n jenkins.
 Port-forward to access the Jenkins UI: kubectl port-forward <jenkins-pod-name> 8080:8080 -n jenkins.
 Open http://localhost:8080 in your browser and log in using the admin credentials specified in values.yaml.
 
-
 Verify Service Account:Ensure the service account jenkins-kaniko-sa is created and bound to the IAM role:
 kubectl describe serviceaccount jenkins-kaniko-sa -n jenkins
 
 Verify the IAM role ARN annotation is correctly set for ECR access.
 
-
 Troubleshooting Installation
 
 Pod Not Starting: Check pod events with kubectl describe pod <jenkins-pod-name> -n jenkins for resource or image pull issues.
 DNS Issues: Ensure CoreDNS is running (kubectl get pods -n kube-system -l k8s-app=kube-dns) and VPC DHCP options are set to domain-name: us-east-1.compute.internal and domain-name-servers: AmazonProvidedDNS.
-ECR Access: Confirm the IAM role has permissions for ecr:* actions and is associated with the service account.
+ECR Access: Confirm the IAM role has permissions for ecr:\* actions and is associated with the service account.
 
 Jenkins UI Configuration
 To run the pipeline, configure Jenkins with the necessary plugins, credentials, and Kubernetes cloud settings. Below are the steps:
@@ -180,7 +169,6 @@ Kubernetes Plugin: Enables Jenkins to spawn agents on Kubernetes.
 Git Plugin: Supports Git repository operations.
 Pipeline Plugin: Enables declarative pipeline syntax.
 
-
 Restart Jenkins after installation (via Manage Jenkins > Restart Safely or by restarting the pod).
 
 Configure Kubernetes Cloud
@@ -191,7 +179,6 @@ Kubernetes URL: https://kubernetes.default.svc.cluster.local (default Kubernetes
 Kubernetes Namespace: jenkins.
 Jenkins URL: http://jenkins.jenkins.svc.cluster.local:8080 (internal service URL for agent communication).
 Jenkins Tunnel: jenkins.jenkins.svc.cluster.local:50000 (for JNLP agent connections).
-
 
 Test the connection to ensure Jenkins can communicate with the EKS cluster.
 
@@ -206,7 +193,6 @@ Username: Your GitHub username
 Password: Your GitHub personal access token (with repo scope)
 ID: github-credentials (used in the pipeline)
 Description: GitHub credentials for pipeline
-
 
 Save the credentials. The pipeline references this ID in the git step.
 
@@ -227,15 +213,12 @@ Container: git (uses alpine/git:latest image)
 Description: Clones the main branch of the repository https://github.com/shymaagamal/End-to-End-Pipeline-on-AWS.git using the github-credentials configured in Jenkins.
 Purpose: Retrieves the source code, including the Dockerfile in the Application directory, for the subsequent build stage.
 Implementation:stage('Checkout') {
-    steps {
-        container('git') {
-            git branch: 'main', url: 'https://github.com/shymaagamal/End-to-End-Pipeline-on-AWS.git'
-        }
-    }
+steps {
+container('git') {
+git branch: 'main', url: 'https://github.com/shymaagamal/End-to-End-Pipeline-on-AWS.git'
 }
-
-
-
+}
+}
 
 Build and Push Image:
 
@@ -246,35 +229,29 @@ ECR_REGISTRY: 339007232055.dkr.ecr.us-east-1.amazonaws.com (ECR registry URL).
 IMAGE_REPO: my-ecr (ECR repository name).
 IMAGE_TAG: ${BUILD_NUMBER} (Jenkins build number for versioning).
 
-
 Purpose: Creates a Docker image and stores it in ECR for deployment or further use.
 Implementation:stage('Build and Push Image') {
-    steps {
-        container('kaniko') {
-            script {
-                sh """
-                    /kaniko/executor \\
-                        --dockerfile=Application/Dockerfile \\
-                        --context=. \\
-                        --destination=${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG} \\
+steps {
+container('kaniko') {
+script {
+sh """
+/kaniko/executor \\
+--dockerfile=Application/Dockerfile \\
+--context=. \\
+--destination=${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG} \\
                         --destination=${ECR_REGISTRY}/${IMAGE_REPO}:latest \\
-                        --cache=true \\
-                        --cache-ttl=24h
-                """
-            }
-        }
-    }
+--cache=true \\
+--cache-ttl=24h
+"""
 }
-
+}
+}
+}
 
 Notes:
 Kaniko uses the jenkins-kaniko-sa service account with IAM permissions to push to ECR.
 The --cache option enables Docker layer caching to speed up builds.
 The --cache-ttl=24h ensures cached layers are valid for 24 hours.
-
-
-
-
 
 Post-Build Actions
 
@@ -287,13 +264,11 @@ Implementation:post {
     }
     success {
         echo "Image pushed successfully to ${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG}"
-    }
-    failure {
-        echo "Build failed"
-    }
 }
-
-
+failure {
+echo "Build failed"
+}
+}
 
 Troubleshooting Pipeline
 
@@ -301,13 +276,11 @@ Checkout Stage:
 Error: "Repository not found" or authentication failure.
 Fix: Verify github-credentials ID exists and the token is valid. Check repository URL and branch name.
 
-
 Build and Push Stage:
 Error: Kaniko fails to push to ECR (e.g., authentication errors).
-Fix: Ensure jenkins-kaniko-sa has the correct IAM role with ecr:* permissions. Verify AWS_DEFAULT_REGION is set correctly (us-east-1).
+Fix: Ensure jenkins-kaniko-sa has the correct IAM role with ecr:\* permissions. Verify AWS_DEFAULT_REGION is set correctly (us-east-1).
 Error: Dockerfile not found.
 Fix: Confirm Application/Dockerfile exists in the repository root.
-
 
 DNS Issues: If the pod fails with UnknownHostException for jenkins.jenkins.svc.cluster.local, check CoreDNS (kubectl get pods -n kube-system -l k8s-app=kube-dns) and VPC DHCP options in the AWS console.
 
@@ -322,10 +295,7 @@ Kubernetes Plugin for Jenkins
 AWS EKS Documentation
 Kaniko Documentation
 
-
-
 This setup ensures a robust CI pipeline for building and deploying Docker images to ECR, with clear instructions for replication and troubleshooting.
-
 
 -----> jenkins part
 
@@ -464,7 +434,9 @@ kubectl get secret <SECRET_NAME>  -o jsonpath="{.data}" | jq 'to_entries[] | "\(
 ```
 
 ---
+
 ![secrets](Images/secret.png)
+
 ## 🛠 **Using the Secrets in Your Application**
 
 Now, in your _Deployment_ manifest, reference the synced secret:
@@ -590,8 +562,120 @@ docker push 339007232055.dkr.ecr.us-east-1.amazonaws.com/my-ecr:latest
 
 ---
 
+# 🌐 ingress and HTTPS
+
+This guide walks you through setting up **Ingress** and **TLS certificates** for your applications using **NGINX Ingress Controller** and **cert-manager** with **Let's Encrypt**.
+
+## 🛠️ **Installation**
+
+### 1️⃣ **Install NGINX Ingress Controller**
+
+```bash
+kubectl create namespace ingress-nginx
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx
+```
+
+---
+
+### 2️⃣ **Install cert-manager:**
+
+```bash
+kubectl create namespace cert-manager
+
+helm repo add jetstack https://charts.jetstack.io \
+helm install cert-manager jetstack/cert-manager \
+--namespace cert-manager \
+--set installCRDs=true
+```
+
+---
+
+### 3️⃣ **Get Ingress External IP (ALB)**
+
+To get the public IP or DNS name of the Ingress ALB:
+
+```bash
+kubectl get svc -n ingress-nginx
+
+dig +short <INGRESS_ALB_EXTERNAL_IP>
+```
+
+> [!NOTE]
+> If multiple IPs are returned, any one of them can be used.
+
+---
+
+### 4️⃣ **Set Up Ingress Hosts (DNS)**
+
+- **🔷 For ArgoCD:**
+  Update the ArgoCD Helm values file located at:[argocd values](./Helm/argocd_values.yaml)
+
+  Then upgrade the ArgoCD release:
+
+  ```bash
+  helm upgrade -n argocd argocd argo/argo-cd -f ./Helm/argocd_values.yaml
+  ```
+
+- **🔶 For Jenkins and Application:**
+  Create the Ingress resources for Jenkins and your application using the manifests located at: [Ingress Manifests](./Manifests/ingress/)
+
+> [!IMPORTANT]
+> Replace the domain or IP in the ingress files with the Ingress ALB IP or external DNS name from step 3.
+
+---
+
+### 5️⃣ **Apply Ingress and TLS Manifests**
+
+➤ Apply the ClusterIssuer (for HTTPS via Let’s Encrypt)
+
+```bash
+kubectl apply -f ./Manifests/ingress/cluster-issuer.yaml
+```
+
+➤ Apply Application and Jenkins Ingresses
+
+```bash
+kubectl apply -f ./Manifests/ingress/app-ingress.yaml
+kubectl apply -f ./Manifests/ingress/jenkins-ingress.yaml
+```
+
+### 6️⃣ **Verify Ingress Resources**
+
+Check that the ingress rules and hosts are correctly created:
+
+```bash
+kubectl get ingress --all-namespaces
+```
+
+### 7️⃣ **Access Your Applications**
+
+- **Application Ingress**  
+  ![Application Ingress](./Images/app-ingress.png)
+
+- **Jenkins Ingress**  
+  ![Jenkins Ingress](./Images/jenkins-ingress.png)
+
+- **ArgoCD Ingress**  
+  ![ArgoCD Ingress](./Images/argocd-ingress.png)
+
+> [!NOTE]
+> This setup uses [`sslip.io`](https://sslip.io) wildcard DNS, which automatically maps IPs to domain names for quick testing. For example:
+
+```bash
+http://app.<ingress-ip>.sslip.io
+```
+
+> [!TIP]
+> **This is suitable for development and testing purposes only.** For production, you should use a real domain name with proper DNS records.
+
 # References:
-[Artifact hub - Jenkins](https://artifacthub.io/packages/helm/bitnami/jenkins)
-[Github - Kaniko](https://github.com/GoogleContainerTools/kaniko)
+
+[Artifact hub - Jenkins](https://artifacthub.io/packages/helm/bitnami/jenkins)<br>
+[Github - Kaniko](https://github.com/GoogleContainerTools/kaniko) <br>
 [Artifact hub - External Operator](https://artifacthub.io/packages/Helm/external-secrets-operator/external-secrets?modal=install) <br>
-[External Secrets Operator](https://external-secrets.io/latest/)
+[External Secrets Operator](https://external-secrets.io/latest/)<br>
+[Cert-manager](https://cert-manager.io/docs/) <br>
+[ACME HTTP-01 Challenge](https://cert-manager.io/docs/configuration/acme/http01/) <br>
+[ClusterIssuer Resource](https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.ClusterIssuer) <br>
+[sslip.io - Free Wildcard DNS](https://sslip.io)
