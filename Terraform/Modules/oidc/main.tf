@@ -27,8 +27,8 @@ resource "aws_iam_policy" "external_secrets_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "secretsmanager:GetSecretValue",
           "secretsmanager:DescribeSecret",
           "secretsmanager:ListSecrets",
@@ -49,7 +49,7 @@ resource "aws_iam_role" "external_secrets_irsa" {
       {
         Effect = "Allow",
         Principal = {
-          Federated = "arn:aws:iam::339007232055:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/48DC87EFF767AF96E3E66B49849F3CC0"
+          Federated = aws_iam_openid_connect_provider.eks_oidc_provider.arn
         },
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
@@ -91,7 +91,7 @@ resource "aws_iam_role" "kaniko_role" {
 }
 # ///////////////////////////// Kaniko Policy /////////////////////
 resource "aws_iam_policy" "ecr_kaniko" {
-  name = "ECRKanikoAccessPolicy"
+  name        = "ECRKanikoAccessPolicy"
   description = "Policy to allow Kaniko to push images to ECR"
   policy = jsonencode({
     Version = "2012-10-17"
