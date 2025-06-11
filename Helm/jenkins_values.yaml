@@ -17,13 +17,14 @@ controller:
     - docker-workflow:563.vd5d2e5c4007f
     - pipeline-utility-steps:2.13.0
   jenkinsUrl: http://jenkins.jenkins.svc.cluster.local:8080
-  
-  
+
   serviceAccount:
     create: false
     name: jenkins-kaniko-sa
-    
-  serviceType: LoadBalancer
+
+service:
+  type: ClusterIP
+
   persistence:
     enabled: true
     storageClass: "gp3"

@@ -23,27 +23,36 @@ Provisioned using only Terraform:
 ---
 
 ### ✅ Application Code Repo – NodeJs
+
 Clone the repository to get the application code:
+
 ```bash
 git clone https://github.com/MalakGhazy/nodejs-application.git
 cd nodejs-application
 ```
+
 > [!NOTE]
 > This repository contains the full source code for the Node.js application.
 
-### ✅ Login to EKS Cluster  
+### ✅ Login to EKS Cluster
+
 Use the following command to configure access to your EKS cluster:
+
 ```bash
 aws eks update-kubeconfig --name < CLUSTER_NAME> --region <CLUSTER_REGION>
 ```
+
 To ensure the cluster was added to your ~/.kube/config file:
+
 ```bash
-kubectl config get-contexts 
+kubectl config get-contexts
 ```
+
 > [!NOTE]
-> The cluster marked with an asterisk (*) is your current default context. Use it to confirm you're working on the correct cluster.
+> The cluster marked with an asterisk (\*) is your current default context. Use it to confirm you're working on the correct cluster.
 
 ---
+
 ## 🔐 OIDC Provider Configuration for IRSA (IAM Roles for Service Accounts)
 
 To enable secure and fine-grained access control between Kubernetes service accounts and AWS services, we configured an OIDC (OpenID Connect) provider for the EKS cluster
@@ -395,7 +404,9 @@ kubectl get secret <SECRET_NAME>  -o jsonpath="{.data}" | jq 'to_entries[] | "\(
 ```
 
 ---
+
 ![secrets](Images/secret.png)
+
 ## 🛠 **Using the Secrets in Your Application**
 
 Now, in your _Deployment_ manifest, reference the synced secret:
@@ -521,8 +532,120 @@ docker push 339007232055.dkr.ecr.us-east-1.amazonaws.com/my-ecr:latest
 
 ---
 
+# 🌐 ingress and HTTPS
+
+This guide walks you through setting up **Ingress** and **TLS certificates** for your applications using **NGINX Ingress Controller** and **cert-manager** with **Let's Encrypt**.
+
+## 🛠️ **Installation**
+
+### 1️⃣ **Install NGINX Ingress Controller**
+
+```bash
+kubectl create namespace ingress-nginx
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx
+```
+
+---
+
+### 2️⃣ **Install cert-manager:**
+
+```bash
+kubectl create namespace cert-manager
+
+helm repo add jetstack https://charts.jetstack.io \
+helm install cert-manager jetstack/cert-manager \
+--namespace cert-manager \
+--set installCRDs=true
+```
+
+---
+
+### 3️⃣ **Get Ingress External IP (ALB)**
+
+To get the public IP or DNS name of the Ingress ALB:
+
+```bash
+kubectl get svc -n ingress-nginx
+
+dig +short <INGRESS_ALB_EXTERNAL_IP>
+```
+
+> [!NOTE]
+> If multiple IPs are returned, any one of them can be used.
+
+---
+
+### 4️⃣ **Set Up Ingress Hosts (DNS)**
+
+- **🔷 For ArgoCD:**
+  Update the ArgoCD Helm values file located at:[argocd values](./Helm/argocd_values.yaml)
+
+  Then upgrade the ArgoCD release:
+
+  ```bash
+  helm upgrade -n argocd argocd argo/argo-cd -f ./Helm/argocd_values.yaml
+  ```
+
+- **🔶 For Jenkins and Application:**
+  Create the Ingress resources for Jenkins and your application using the manifests located at: [Ingress Manifests](./Manifests/ingress/)
+
+> [!IMPORTANT]
+> Replace the domain or IP in the ingress files with the Ingress ALB IP or external DNS name from step 3.
+
+---
+
+### 5️⃣ **Apply Ingress and TLS Manifests**
+
+➤ Apply the ClusterIssuer (for HTTPS via Let’s Encrypt)
+
+```bash
+kubectl apply -f ./Manifests/ingress/cluster-issuer.yaml
+```
+
+➤ Apply Application and Jenkins Ingresses
+
+```bash
+kubectl apply -f ./Manifests/ingress/app-ingress.yaml
+kubectl apply -f ./Manifests/ingress/jenkins-ingress.yaml
+```
+
+### 6️⃣ **Verify Ingress Resources**
+
+Check that the ingress rules and hosts are correctly created:
+
+```bash
+kubectl get ingress --all-namespaces
+```
+
+### 7️⃣ **Access Your Applications**
+
+- **Application Ingress**  
+  ![Application Ingress](./Images/app-ingress.png)
+
+- **Jenkins Ingress**  
+  ![Jenkins Ingress](./Images/jenkins-ingress.png)
+
+- **ArgoCD Ingress**  
+  ![ArgoCD Ingress](./Images/argocd-ingress.png)
+
+> [!NOTE]
+> This setup uses [`sslip.io`](https://sslip.io) wildcard DNS, which automatically maps IPs to domain names for quick testing. For example:
+
+```bash
+http://app.<ingress-ip>.sslip.io
+```
+
+> [!TIP]
+> **This is suitable for development and testing purposes only.** For production, you should use a real domain name with proper DNS records.
+
 # References:
-[Artifact hub - Jenkins](https://artifacthub.io/packages/helm/bitnami/jenkins)
-[Github - Kaniko](https://github.com/GoogleContainerTools/kaniko)
+
+[Artifact hub - Jenkins](https://artifacthub.io/packages/helm/bitnami/jenkins)<br>
+[Github - Kaniko](https://github.com/GoogleContainerTools/kaniko) <br>
 [Artifact hub - External Operator](https://artifacthub.io/packages/Helm/external-secrets-operator/external-secrets?modal=install) <br>
-[External Secrets Operator](https://external-secrets.io/latest/)
+[External Secrets Operator](https://external-secrets.io/latest/)<br>
+[Cert-manager](https://cert-manager.io/docs/) <br>
+[ACME HTTP-01 Challenge](https://cert-manager.io/docs/configuration/acme/http01/) <br>
+[ClusterIssuer Resource](https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.ClusterIssuer) <br>
+[sslip.io - Free Wildcard DNS](https://sslip.io)

@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jenkins-ingress
+  namespace: jenkins
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-http"
+spec:
+  tls:
+    - hosts:
+        - jenkins.54.166.27.174.sslip.io
+      secretName: jenkins-tls
+  rules:
+    - host: jenkins.54.166.27.174.sslip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: my-release-jenkins
+                port:
+                  number: 80

@@ -1,0 +1,15 @@
+server:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hostname: argocd.54.166.27.174.sslip.io
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-http"
+    tls:
+      - hosts:
+          - argocd.54.166.27.174.sslip.io
+        secretName: argocd-tls
+    hosts:
+      - argocd.54.166.27.174.sslip.io
+  extraArgs:
+    - --insecure
