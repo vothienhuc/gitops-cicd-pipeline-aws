@@ -20,39 +20,6 @@ Provisioned using only Terraform:
   - **EBS CSI driver** enabled for secure service integrations and dynamic volume provisioning
 - **OIDC Provider** enabled to allow secure IAM roles for Kubernetes service accounts (IRSA).
 
----
-
-### ✅ Application Code Repo – NodeJs
-
-Clone the repository to get the application code:
-
-```bash
-git clone https://github.com/MalakGhazy/nodejs-application.git
-cd nodejs-application
-```
-
-> [!NOTE]
-> This repository contains the full source code for the Node.js application.
-
-### ✅ Login to EKS Cluster
-
-Use the following command to configure access to your EKS cluster:
-
-```bash
-aws eks update-kubeconfig --name < CLUSTER_NAME> --region <CLUSTER_REGION>
-```
-
-To ensure the cluster was added to your ~/.kube/config file:
-
-```bash
-kubectl config get-contexts
-```
-
-> [!NOTE]
-> The cluster marked with an asterisk (\*) is your current default context. Use it to confirm you're working on the correct cluster.
-
----
-
 ## 🔐 OIDC Provider Configuration for IRSA (IAM Roles for Service Accounts)
 
 To enable secure and fine-grained access control between Kubernetes service accounts and AWS services, we configured an OIDC (OpenID Connect) provider for the EKS cluster
@@ -90,6 +57,39 @@ To support dynamic Persistent Volume provisioning for stateful workloads such as
 - Used by both Jenkins (for persistent job/workspace data) and MySQL (to store database files securely).
 
 > 📂 YAML file location: You can find the StorageClass definition in [`/Manifests/storageclass.yaml`](./Manifests/storageClass.yaml)
+
+---
+
+## ✅ Login to EKS Cluster
+
+Use the following command to configure access to your EKS cluster:
+
+```bash
+aws eks update-kubeconfig --name < CLUSTER_NAME> --region <CLUSTER_REGION>
+```
+
+To ensure the cluster was added to your ~/.kube/config file:
+
+```bash
+kubectl config get-contexts
+```
+
+> [!NOTE]
+> The cluster marked with an asterisk (\*) is your current default context. Use it to confirm you're working on the correct cluster.
+
+---
+
+## ✅ Application Code Repo – NodeJs
+
+Clone the repository to get the application code:
+
+```bash
+git clone https://github.com/MalakGhazy/nodejs-application.git
+cd nodejs-application
+```
+
+> [!NOTE]
+> This repository contains the full source code for the Node.js application.
 
 # ⚙️ Continuous Integration – Jenkins
 
@@ -358,28 +358,7 @@ kubectl get pods -n external-secrets
 
 ## 🔐 **Connect to AWS Secrets Manager**
 
-### 1️⃣ **Export the AWS Credentials**
-
-```bash
-export AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id --profile default)
-export AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key --profile default)
-
-```
-
-### 2️⃣ **Create a Kubernetes Secret with AWS Credentials**
-
-Now, create a Kubernetes secret containing your AWS access credentials:
-
-```bash
-kubectl create secret generic aws-credentials \
-  -n external-secrets \
-  --from-literal=access-key-id=$AWS_ACCESS_KEY_ID \
-  --from-literal=secret-access-key=$AWS_SECRET_ACCESS_KEY
-```
-
----
-
-### 3️⃣ **Create a ClusterSecretStore**
+### **Create a ClusterSecretStore**
 
 Now, Apply the K8s Manifests
 
@@ -636,8 +615,7 @@ kubectl get ingress --all-namespaces
 http://app.<ingress-ip>.sslip.io
 ```
 
-> [!TIP]
-> **This is suitable for development and testing purposes only.** For production, you should use a real domain name with proper DNS records.
+> [!TIP] > **This is suitable for development and testing purposes only.** For production, you should use a real domain name with proper DNS records.
 
 # References:
 
