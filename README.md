@@ -84,254 +84,185 @@ To support dynamic Persistent Volume provisioning for stateful workloads such as
 
 # ⚙️ Continuous Integration – Jenkins
 
-This section provides detailed instructions for setting up and configuring Jenkins for Continuous Integration (CI) in the context of this repository, which implements an end-to-end CI pipeline on AWS using Jenkins, Kubernetes, and Kaniko to build and push Docker images to Amazon ECR. The setup leverages Helm for installation, configures the Jenkins UI for pipeline execution, and defines pipeline stages for code checkout and image building.
+This document provides detailed instructions for setting up and configuring **Jenkins** for Continuous Integration (CI) in the context of this repository. The CI pipeline is implemented on **AWS** using **Jenkins**, **Kubernetes**, and **Kaniko** to build and push Docker images to **Amazon ECR**.
 
-#### **Jenkins Installation and Setup via Helm**
+The setup leverages **Helm** for installation, configures the Jenkins UI for pipeline execution, and defines pipeline stages for code checkout and image building.
 
-Jenkins is deployed on an AWS EKS cluster using Helm, a Kubernetes package manager, to simplify installation and configuration. Below are the steps to install and set up Jenkins:
+---
 
-**Installation Steps**
+## 🚀 Jenkins Installation and Setup via Helm
 
-*1- Add Jenkins Helm Repository:*
+Jenkins is deployed on an AWS EKS cluster using **Helm**, a Kubernetes package manager.
+
+### 🛠 Installation Steps
+
+#### 1️⃣ Add Jenkins Helm Repository
+
 ```bash
 helm install my-jenkins bitnami/jenkins --version 13.6.8
 helm repo update
 ```
 
-*2-Create a Namespace:*
-Jenkins will be deployed in the jenkins namespace to isolate it from other workloads.
+#### 2️⃣ Create a Namespace
+
 ```bash
 kubectl create namespace jenkins
 ```
 
-*3-Use the Provided values.yaml File:* 
-The following values.yaml file is used to customize the Jenkins deployment:
+#### 3️⃣ Use the Provided values.yaml
 
-Key Notes:
+Key configurations in values.yaml:
 
+- Image: jenkins/jenkins:lts-jdk17
+- Security Context: Non-root user (runAsUser: 1000, runAsGroup: 1000)
+- Plugins: Kubernetes, Git, Pipeline, Credentials, AWS ECR
+- Jenkins URL: http://jenkins.jenkins.svc.cluster.local:8080
+- Service Account: jenkins-kaniko-sa with IAM Role arn:aws:iam::<ACCOUNT_ID>:role/JenkinsKanikoRole
+- Service Type: LoadBalancer
+- Persistence: 8Gi EBS volume (gp3)
+- RBAC: Enabled for Kubernetes access
+- Agent: Kubernetes-based pods for builds
 
+#### 4️⃣ Install Jenkins via Helm
 
+```bash
+helm install jenkins jenkins/jenkins -n jenkins -f jenkins_values.yaml
+```
 
+### 🔐 Access Jenkins
 
-Image: Uses jenkins/jenkins:lts-jdk17 for a stable, long-term support version with JDK 17.
+1. Get jenkins Loadbalancer DNS
 
+```bash
+kubectl get svc -n jenkins
+```
 
+Look for the external DNS under the EXTERNAL-IP or hostname field of the LoadBalancer service (usually named jenkins or my-release-jenkins).
 
-Security Context: Runs the Jenkins container as a non-root user (runAsUser: 1000, runAsGroup: 1000) for improved security.
+2. Retrieve the Jenkins Admin Password
 
+```bash
+kubectl -n jenkins get secret │ my-release-jenkins  -o jsonpath="{.data.password}" | base64 -d
+```
 
+3. Log in to Jenkins
+   Open your browser and visit:
+   http://<LoadBalancer_DNS>:8080
 
-Plugins: Installs plugins for Kubernetes integration, Git operations, pipeline support, credentials management, and AWS ECR interaction.
+   Use the following credentials:
 
+   - Username: user
+   - Password: (the decoded password from step 2)
 
+### ✅ Apply Service Account
 
-Jenkins URL: Configured as http://jenkins.jenkins.svc.cluster.local:8080 for internal agent communication.
-
-
-
-Service Account: Uses the pre-existing jenkins-kaniko-sa service account, which must be configured with an IAM role for ECR access (e.g., arn:aws:iam::339007232055:role/JenkinsKanikoRole).
-
-
-
-Service Type: LoadBalancer exposes Jenkins externally via an AWS Elastic Load Balancer (ELB) for UI access.
-
-
-
-Persistence: Enables an 8Gi persistent volume using the gp3 storage class (AWS EBS) to store Jenkins configuration.
-
-
-
-RBAC: Creates necessary role-based access control rules for Jenkins to interact with the Kubernetes cluster.
-
-
-
-Agent: Enables Kubernetes agents to run pipeline jobs in pods.
-Install Jenkins via Helm:
-helm install jenkins jenkins/jenkins -n jenkins -f values.yaml
-
-This deploys Jenkins in the jenkins namespace with the custom configurations.
-
-Access Jenkins:
-
-Get the Jenkins pod name: kubectl get pods -n jenkins.
-Port-forward to access the Jenkins UI: kubectl port-forward <jenkins-pod-name> 8080:8080 -n jenkins.
-Open http://localhost:8080 in your browser and log in using the admin credentials specified in values.yaml.
-
-
-Verify Service Account:Ensure the service account jenkins-kaniko-sa is created and bound to the IAM role:
+```bash
+kubectl apply -f /Manifiests/service-account.yaml
 kubectl describe serviceaccount jenkins-kaniko-sa -n jenkins
+```
 
-Verify the IAM role ARN annotation is correctly set for ECR access.
+Ensure the correct IAM role annotation is set for ECR access.
 
+### 🧩 Jenkins UI Configuration
 
-Troubleshooting Installation
+1. Install Required Plugins
+   Go to: Manage Jenkins > Manage Plugins > Available
 
-Pod Not Starting: Check pod events with kubectl describe pod <jenkins-pod-name> -n jenkins for resource or image pull issues.
-DNS Issues: Ensure CoreDNS is running (kubectl get pods -n kube-system -l k8s-app=kube-dns) and VPC DHCP options are set to domain-name: us-east-1.compute.internal and domain-name-servers: AmazonProvidedDNS.
-ECR Access: Confirm the IAM role has permissions for ecr:* actions and is associated with the service account.
+2. Install:
 
-Jenkins UI Configuration
-To run the pipeline, configure Jenkins with the necessary plugins, credentials, and Kubernetes cloud settings. Below are the steps:
-Install Required Plugins
+   - Kubernetes Plugin
+   - Git Plugin
+   - Pipeline Plugin
+   - Restart Jenkins after installation.
 
-Navigate to Manage Jenkins > Manage Plugins > Available.
-Install the following plugins:
-Kubernetes Plugin: Enables Jenkins to spawn agents on Kubernetes.
-Git Plugin: Supports Git repository operations.
-Pipeline Plugin: Enables declarative pipeline syntax.
+3. ⚙️ Configure Kubernetes Cloud
+   Navigate to: Manage Jenkins > Configure System > Cloud > Kubernetes
 
+   Set the following:
 
-Restart Jenkins after installation (via Manage Jenkins > Restart Safely or by restarting the pod).
+   - Kubernetes URL: https://kubernetes.default.svc.cluster.local
+   - Namespace: jenkins
+   - Jenkins URL: http://jenkins.jenkins.svc.cluster.local:8080
+   - Jenkins Tunnel: jenkins.jenkins.svc.cluster.local:50000
 
-Configure Kubernetes Cloud
+   Test connection to validate communication.
 
-Go to Manage Jenkins > Configure System > Cloud > Kubernetes.
-Set the following:
-Kubernetes URL: https://kubernetes.default.svc.cluster.local (default Kubernetes API server).
-Kubernetes Namespace: jenkins.
-Jenkins URL: http://jenkins.jenkins.svc.cluster.local:8080 (internal service URL for agent communication).
-Jenkins Tunnel: jenkins.jenkins.svc.cluster.local:50000 (for JNLP agent connections).
+### 🔑 Add GitHub Credentials
 
+Go to: Manage Jenkins > Manage Credentials > System > Global credentials (unrestricted) > Add Credentials
 
-Test the connection to ensure Jenkins can communicate with the EKS cluster.
+Fill in:
 
-Add Credentials
-The pipeline requires credentials for accessing the Git repository. Configure them as follows:
+- Kind: Username with Password
+- Scope: Global
+- Username: Your GitHub username
+- Password: GitHub personal access token (with repo scope)
+- ID: github-credentials
+- Description: GitHub credentials for pipeline
 
-Go to Manage Jenkins > Manage Credentials > System > Global credentials (unrestricted) > Add Credentials.
-Add the following credential:
-Kind: Username with Password
-Scope: Global
-Username: Your GitHub username
-Password: Your GitHub personal access token (with repo scope)
-ID: github-credentials (used in the pipeline)
-Description: GitHub credentials for pipeline
+### 🛠 Jenkins Pipeline Stages
 
+This pipeline checks out code and builds/pushes a Docker image to Amazon ECR.
 
-Save the credentials. The pipeline references this ID in the git step.
+📂 Checkout
+Container: git (uses alpine/git:latest)
 
-Troubleshooting UI Configuration
+Action: Clones main branch of https://github.com/MalakGhazy/nodejs-application.git
 
-Connection Errors: If agents cannot connect, verify the Jenkins URL and tunnel settings. Check CoreDNS status with kubectl get pods -n kube-system -l k8s-app=kube-dns.
-Credential Issues: Ensure the GitHub token has the correct scope and is not expired. Test by cloning the repository manually using the token.
-
-Jenkins Pipeline Stages
-The Jenkins pipeline automates the process of checking out code from GitHub and building/pushing a Docker image to Amazon ECR. Below is an overview of the pipeline stages defined in the Jenkinsfile:
-Pipeline Structure
-The pipeline uses a Kubernetes agent to run tasks in a pod with kaniko and git containers. It includes environment variables and stages for checkout and image building.
-Stages
-
-Checkout:
-
-Container: git (uses alpine/git:latest image)
-Description: Clones the main branch of the repository https://github.com/shymaagamal/End-to-End-Pipeline-on-AWS.git using the github-credentials configured in Jenkins.
-Purpose: Retrieves the source code, including the Dockerfile in the Application directory, for the subsequent build stage.
-Implementation:stage('Checkout') {
+```bash
+stage('Checkout') {
     steps {
-        container('git') {
-            git branch: 'main', url: 'https://github.com/shymaagamal/End-to-End-Pipeline-on-AWS.git'
+       container('git') {
+            git branch: 'main', url: 'https://github.com/MalakGhazy/nodejs-application.git'
         }
     }
 }
+```
 
+### 🏗 Build and Push Image
 
-
-
-Build and Push Image:
-
-Container: kaniko (uses gcr.io/kaniko-project/executor:debug image)
-Description: Builds a Docker image from the Dockerfile located in the Application directory and pushes it to Amazon ECR with two tags: ${BUILD_NUMBER} (e.g., 1, 2, etc.) and latest.
+Container: kaniko (gcr.io/kaniko-project/executor:debug)
+Dockerfile Location: Application/Dockerfile
 Environment Variables:
-ECR_REGISTRY: 339007232055.dkr.ecr.us-east-1.amazonaws.com (ECR registry URL).
-IMAGE_REPO: my-ecr (ECR repository name).
-IMAGE_TAG: ${BUILD_NUMBER} (Jenkins build number for versioning).
 
+- ECR_REGISTRY: 339007232055.dkr.ecr.us-east-1.amazonaws.com
+- IMAGE_REPO: my-ecr
+- IMAGE_TAG: ${BUILD_NUMBER}
 
-Purpose: Creates a Docker image and stores it in ECR for deployment or further use.
-Implementation:stage('Build and Push Image') {
+```bash
+stage('Build and Push Image') {
     steps {
         container('kaniko') {
             script {
                 sh """
-                    /kaniko/executor \\
-                        --dockerfile=Application/Dockerfile \\
-                        --context=. \\
-                        --destination=${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG} \\
-                        --destination=${ECR_REGISTRY}/${IMAGE_REPO}:latest \\
-                        --cache=true \\
-                        --cache-ttl=24h
+                    /kaniko/executor \
+                    --dockerfile=Application/Dockerfile \
+                    --context=. \
+                    --destination=${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG} \
+                    --cache=true \
+                    --cache-ttl=24h
                 """
-            }
-        }
+      }
+    }
+  }
+}
+```
+
+### ✅ Post-Build Actions
+
+```bash
+post {
+   always {
+      echo "Build completed"
+    }
+   success {
+      echo "Image pushed successfully to ${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG}"
+    }
+   failure {
+      echo "Build failed"
     }
 }
-
-
-Notes:
-Kaniko uses the jenkins-kaniko-sa service account with IAM permissions to push to ECR.
-The --cache option enables Docker layer caching to speed up builds.
-The --cache-ttl=24h ensures cached layers are valid for 24 hours.
-
-
-
-
-
-Post-Build Actions
-
-Always: Prints "Build completed" to the console.
-Success: Prints "Image pushed successfully to ${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG}".
-Failure: Prints "Build failed".
-Implementation:post {
-    always {
-        echo "Build completed"
-    }
-    success {
-        echo "Image pushed successfully to ${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG}"
-    }
-    failure {
-        echo "Build failed"
-    }
-}
-
-
-
-Troubleshooting Pipeline
-
-Checkout Stage:
-Error: "Repository not found" or authentication failure.
-Fix: Verify github-credentials ID exists and the token is valid. Check repository URL and branch name.
-
-
-Build and Push Stage:
-Error: Kaniko fails to push to ECR (e.g., authentication errors).
-Fix: Ensure jenkins-kaniko-sa has the correct IAM role with ecr:* permissions. Verify AWS_DEFAULT_REGION is set correctly (us-east-1).
-Error: Dockerfile not found.
-Fix: Confirm Application/Dockerfile exists in the repository root.
-
-
-DNS Issues: If the pod fails with UnknownHostException for jenkins.jenkins.svc.cluster.local, check CoreDNS (kubectl get pods -n kube-system -l k8s-app=kube-dns) and VPC DHCP options in the AWS console.
-
-Additional Notes
-
-Security: Store sensitive data like the Jenkins admin password and GitHub token securely, preferably using a secret manager or Kubernetes secrets.
-Scaling: For production, consider enabling Jenkins high availability (HA) or increasing resource limits in values.yaml.
-Monitoring: Use tools like Prometheus and Grafana to monitor Jenkins and EKS cluster health.
-References:
-Jenkins Helm Chart
-Kubernetes Plugin for Jenkins
-AWS EKS Documentation
-Kaniko Documentation
-
-
-
-This setup ensures a robust CI pipeline for building and deploying Docker images to ECR, with clear instructions for replication and troubleshooting.
-
-
------> jenkins part
-
-- installations and setup via Helm and mentions to values.yaml if used
-- Jenkins UI Configuration and mentions to credentials that u used in pipeline
-- Jenkins Pipeline stages
+```
 
 # 🚀 Continuous Deployment – ArgoCD + Argo Image Updater
 
