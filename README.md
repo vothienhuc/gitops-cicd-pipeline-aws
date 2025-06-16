@@ -1,8 +1,48 @@
-# 🚀 DevOps Capstone Project – GitOps CI/CD Pipeline on AWS
+# GitOps CI/CD Pipeline on AWS
 
-## 📘 Project Overview
+This project demonstrates a **production-ready GitOps-based CI/CD pipeline** on **Amazon Web Services (AWS)**. It integrates modern DevOps tools to automate infrastructure provisioning, application deployment, and secret management, delivering a fully containerized **Node.js** web application with **MySQL** and **Redis** on **Amazon EKS**.
 
-This project demonstrates the creation of a **production-ready GitOps CI/CD pipeline** on AWS using modern DevOps tools. It provisions infrastructure using **Terraform**, manages CI/CD workflows using **Jenkins** and **ArgoCD**, secures sensitive information using **External Secrets Operator**, and deploys a **Node.js web application** with **MySQL** and **Redis** on **Amazon EKS**.
+---
+
+## 🚀 Project Overview
+
+### Key Components:
+- **Infrastructure as Code**: Managed with [Terraform](https://www.terraform.io/) for provisioning AWS resources (EKS, RDS, etc.)
+- **CI/CD Pipeline**: Implemented using [Jenkins](https://www.jenkins.io/) for build/test and [ArgoCD](https://argo-cd.readthedocs.io/) for GitOps-based deployment
+- **Container Orchestration**: Kubernetes via [Amazon EKS](https://aws.amazon.com/eks/)
+- **Secrets Management**: Handled with [External Secrets Operator](https://external-secrets.io/)
+- **Application Stack**:
+  - Backend: Node.js
+  - Database: MySQL (Amazon RDS)
+  - Cache: Redis (ElastiCache or Kubernetes-native)
+
+---
+
+## 🧰 Technologies Used
+
+| Tool/Platform       | Purpose                         |
+|---------------------|---------------------------------|
+| AWS (EKS, RDS, S3)  | Cloud Infrastructure            |
+| Terraform           | Infrastructure Provisioning     |
+| Jenkins             | CI Automation                   |
+| ArgoCD              | GitOps CD                       |
+| Kubernetes (EKS)    | Container Orchestration         |
+| Docker              | Containerization                |
+| Node.js             | Web Application Backend         |
+| MySQL, Redis        | Data Layer                      |
+| External Secrets    | Secure Secret Integration       |
+
+---
+
+## 🛠️ Features
+
+- ✅ End-to-end CI/CD pipeline from code push to production
+- ✅ GitOps workflow with ArgoCD auto-sync
+- ✅ Modular infrastructure with reusable Terraform modules
+- ✅ Secure secret management via External Secrets and AWS Secrets Manager
+- ✅ Automated provisioning of Kubernetes objects and cloud resources
+
+---
 
 # 🔷 Infrastructure Architecture
 
