@@ -57,7 +57,7 @@ spec:
         stage('Checkout') {
             steps {
                 container('git') {
-                    git branch: 'main', url: 'https://github.com/shymaagamal/End-to-End-Pipeline-on-AWS.git'
+                    git branch: 'main', url: 'https://github.com/abd0hrz/gitops-cicd-pipeline-aws.git'
                 }
             }
         }
