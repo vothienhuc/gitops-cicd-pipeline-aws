@@ -66,6 +66,7 @@ spec:
             steps {
             container('git') {
                 script {
+                    
                     // Ensure Git works with Jenkins' workspace // Mark the current working directory as safe
                     sh 'git config --global --add safe.directory $(pwd)'
 
