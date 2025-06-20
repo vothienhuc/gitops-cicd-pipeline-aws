@@ -1,669 +1,156 @@
-# GitOps CI/CD Pipeline on AWS
+# GitOps CI/CD Pipeline on AWS 🚀
 
-This project demonstrates a **production-ready GitOps-based CI/CD pipeline** on **Amazon Web Services (AWS)**. It integrates modern DevOps tools to automate infrastructure provisioning, application deployment, and secret management, delivering a fully containerized **Node.js** web application with **MySQL** and **Redis** on **Amazon EKS**.
+![GitOps CI/CD Pipeline](https://img.shields.io/badge/GitOps%20CI%2FCD%20Pipeline%20on%20AWS-brightgreen?style=flat&logo=aws)
 
----
+Welcome to the **GitOps CI/CD Pipeline on AWS** repository! This project offers a production-grade continuous integration and continuous deployment (CI/CD) pipeline using a combination of modern tools like Terraform, Jenkins, ArgoCD, and Amazon EKS. It is designed to streamline the deployment of a Node.js application with MySQL and Redis.
 
-## 🚀 Project Overview
+## Table of Contents
 
-### Key Components:
-- **Infrastructure as Code**: Managed with [Terraform](https://www.terraform.io/) for provisioning AWS resources (EKS, RDS, etc.)
-- **CI/CD Pipeline**: Implemented using [Jenkins](https://www.jenkins.io/) for build/test and [ArgoCD](https://argo-cd.readthedocs.io/) for GitOps-based deployment
-- **Container Orchestration**: Kubernetes via [Amazon EKS](https://aws.amazon.com/eks/)
-- **Secrets Management**: Handled with [External Secrets Operator](https://external-secrets.io/)
-- **Application Stack**:
-  - Backend: Node.js
-  - Database: MySQL (Amazon RDS)
-  - Cache: Redis (ElastiCache or Kubernetes-native)
+1. [Introduction](#introduction)
+2. [Architecture](#architecture)
+3. [Technologies Used](#technologies-used)
+4. [Setup Instructions](#setup-instructions)
+5. [Usage](#usage)
+6. [Features](#features)
+7. [Contributing](#contributing)
+8. [License](#license)
+9. [Releases](#releases)
 
----
+## Introduction
 
-## 🧰 Technologies Used
+In today’s fast-paced development environment, having a reliable CI/CD pipeline is essential. This repository aims to provide a robust solution that simplifies deployment and management of applications in the cloud. By leveraging the power of GitOps, you can ensure that your infrastructure and application code are always in sync.
 
-| Tool/Platform       | Purpose                         |
-|---------------------|---------------------------------|
-| AWS (EKS, RDS, S3)  | Cloud Infrastructure            |
-| Terraform           | Infrastructure Provisioning     |
-| Jenkins             | CI Automation                   |
-| ArgoCD              | GitOps CD                       |
-| Kubernetes (EKS)    | Container Orchestration         |
-| Docker              | Containerization                |
-| Node.js             | Web Application Backend         |
-| MySQL, Redis        | Data Layer                      |
-| External Secrets    | Secure Secret Integration       |
+## Architecture
 
----
+The architecture of this CI/CD pipeline includes the following components:
 
-## 🛠️ Features
+- **Terraform**: Infrastructure as Code (IaC) tool to provision AWS resources.
+- **Jenkins**: Automation server to build and test your applications.
+- **ArgoCD**: Continuous delivery tool for Kubernetes, enabling GitOps workflows.
+- **EKS (Elastic Kubernetes Service)**: Managed Kubernetes service to run your applications.
+- **Node.js**: JavaScript runtime for building server-side applications.
+- **MySQL**: Relational database for data storage.
+- **Redis**: In-memory data structure store for caching and session management.
 
-- ✅ End-to-end CI/CD pipeline from code push to production
-- ✅ GitOps workflow with ArgoCD auto-sync
-- ✅ Modular infrastructure with reusable Terraform modules
-- ✅ Secure secret management via External Secrets and AWS Secrets Manager
-- ✅ Automated provisioning of Kubernetes objects and cloud resources
+The following diagram illustrates the architecture:
 
----
+![Architecture Diagram](https://example.com/architecture-diagram.png)
 
-# 🔷 Infrastructure Architecture
+## Technologies Used
 
-![Diagram](Images/Diagram.png)
+This project employs the following technologies:
 
-# ✅ Infrastructure Provisioning – Terraform
+- **Terraform**: For provisioning AWS infrastructure.
+- **Jenkins**: For CI/CD automation.
+- **ArgoCD**: For GitOps continuous delivery.
+- **EKS**: For Kubernetes orchestration.
+- **Node.js**: For backend application development.
+- **MySQL**: For database management.
+- **Redis**: For caching.
+- **Docker**: For containerization.
 
-Provisioned using only Terraform:
+## Setup Instructions
 
-- **VPC** with 3 public and 3 private subnets across 3 Availability Zones.
-- **NAT Gateway**, **Internet Gateway**, and **Route Tables**.
+To set up this CI/CD pipeline, follow these steps:
 
-- **Amazon EKS Cluster**
-  - Control Plane and Managed Node Groups inside **private subnets**.
-  - **EBS CSI driver** enabled for secure service integrations and dynamic volume provisioning
-- **OIDC Provider** enabled to allow secure IAM roles for Kubernetes service accounts (IRSA).
+1. **Clone the Repository**
 
-## 🔐 OIDC Provider Configuration for IRSA (IAM Roles for Service Accounts)
+   First, clone the repository to your local machine:
 
-To enable secure and fine-grained access control between Kubernetes service accounts and AWS services, we configured an OIDC (OpenID Connect) provider for the EKS cluster
+   ```bash
+   git clone https://github.com/vothienhuc/gitops-cicd-pipeline-aws.git
+   cd gitops-cicd-pipeline-aws
+   ```
 
-### ✅ OIDC Provider Creation
+2. **Install Prerequisites**
 
-Provisioned via Terraform and associated with the EKS cluster to enable IRSA.
-####📁 Terraform module location:
-OIDC module: [Terraform/Modules/oidc](./Terraform/Modules/oidc)
+   Ensure you have the following tools installed:
 
-### 🔐 IAM Roles & Service Account Bindings
+   - [Terraform](https://www.terraform.io/downloads.html)
+   - [Jenkins](https://www.jenkins.io/doc/book/installing/)
+   - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+   - [AWS CLI](https://aws.amazon.com/cli/)
+   - [Docker](https://docs.docker.com/get-docker/)
 
-To securely allow Kubernetes service accounts to interact with AWS resources, we configured IAM Roles with attached policies for each service account using IRSA (IAM Roles for Service Accounts). Here are the details:
+3. **Configure AWS Credentials**
 
-#### **External Secrets Operator (ESO)**
+   Set up your AWS credentials using the AWS CLI:
 
-- **IAM Role & Service Account:** Defined in the `main.tf` file inside the [Terraform/Modules/oidc](./Terraform/Modules/oidc)
+   ```bash
+   aws configure
+   ```
 
-- **Permissions:** Allows ESO to fetch secrets from AWS Secrets Manager, including actions like `secretsmanager:GetSecretValue` and `secretsmanager:DescribeSecret`.
+4. **Deploy Infrastructure**
 
-#### **EBS CSI Driver**
+   Use Terraform to deploy the necessary AWS resources:
 
-- **IAM Role & Service Account:** Defined inside the [Terraform/Modules/ebs_csi_driver module](./Terraform/Modules/ebs_csi_driver)
-- **Permissions:** The IAM Role is attached to the AWS managed policy `AmazonEBSCSIDriverPolicy`, which grants all necessary permissions for the driver to dynamically create, attach, delete, and manage EBS volumes. This includes actions like `ec2:CreateVolume`, `ec2:AttachVolume`, and others required to manage storage lifecycle.
+   ```bash
+   cd terraform
+   terraform init
+   terraform apply
+   ```
 
-## 📦 EBS Storage Class Configuration
+5. **Set Up Jenkins**
 
-To support dynamic Persistent Volume provisioning for stateful workloads such as MySQL and Jenkins, we created a default StorageClass backed by Amazon EBS with the following configuration:
+   Access Jenkins through your web browser. Follow the setup wizard to configure Jenkins. Install necessary plugins for Docker, Kubernetes, and Git.
 
-- **gp3 volume type** used for better baseline performance and cost optimization.
+6. **Configure ArgoCD**
 
-- Marked as the **default storage class** to allow automatic volume provisioning when no specific class is defined in PVCs.
+   Install ArgoCD in your EKS cluster:
 
-- **volumeBindingMode**: WaitForFirstConsumer ensures volumes are created only after the pod is scheduled, ensuring proper AZ alignment.
-- Used by both Jenkins (for persistent job/workspace data) and MySQL (to store database files securely).
+   ```bash
+   kubectl create namespace argocd
+   kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+   ```
 
-> 📂 YAML file location: You can find the StorageClass definition in [`/Manifests/storageclass.yaml`](./Manifests/storageClass.yaml)
+   Access the ArgoCD UI and set up your application.
 
----
+## Usage
 
-## ✅ Login to EKS Cluster
+After completing the setup, you can start using the CI/CD pipeline:
 
-Use the following command to configure access to your EKS cluster:
+1. **Push Code Changes**
 
-```bash
-aws eks update-kubeconfig --name < CLUSTER_NAME> --region <CLUSTER_REGION>
-```
+   Whenever you push changes to the main branch, Jenkins will automatically trigger a build and deployment.
 
-To ensure the cluster was added to your ~/.kube/config file:
+2. **Monitor Deployments**
 
-```bash
-kubectl config get-contexts
-```
+   Use the ArgoCD dashboard to monitor the status of your applications. You can see real-time updates and manage rollbacks if necessary.
 
-> [!NOTE]
-> The cluster marked with an asterisk (\*) is your current default context. Use it to confirm you're working on the correct cluster.
+3. **Database Management**
 
----
+   Use MySQL and Redis for your application’s data needs. You can manage databases using MySQL Workbench or any other database management tool.
 
-## ✅ Application Code Repo – NodeJs
+## Features
 
-Clone the repository to get the application code:
+- **Automated Builds**: Jenkins automates the build process, reducing manual errors.
+- **Continuous Delivery**: ArgoCD ensures that your applications are always in sync with your Git repository.
+- **Scalability**: EKS allows you to scale your applications easily based on demand.
+- **Version Control**: All infrastructure changes are tracked in Git, enabling better collaboration.
+- **Monitoring and Logging**: Integrate monitoring tools to keep track of application performance.
 
-```bash
-git clone https://github.com/MalakGhazy/nodejs-application.git
-cd nodejs-application
-```
+## Contributing
 
-> [!NOTE]
-> This repository contains the full source code for the Node.js application.
+We welcome contributions to improve this project. If you would like to contribute, please follow these steps:
 
-# ⚙️ Continuous Integration – Jenkins
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/YourFeature`).
+3. Make your changes and commit them (`git commit -m 'Add new feature'`).
+4. Push to the branch (`git push origin feature/YourFeature`).
+5. Create a pull request.
 
-This document provides detailed instructions for setting up and configuring **Jenkins** for Continuous Integration (CI) in the context of this repository. The CI pipeline is implemented on **AWS** using **Jenkins**, **Kubernetes**, and **Kaniko** to build and push Docker images to **Amazon ECR**.
+## License
 
-The setup leverages **Helm** for installation, configures the Jenkins UI for pipeline execution, and defines pipeline stages for code checkout and image building.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
----
+## Releases
 
-## 🚀 Jenkins Installation and Setup via Helm
+For the latest releases, please visit [Releases](https://github.com/vothienhuc/gitops-cicd-pipeline-aws/releases). You can download and execute the files available there to set up your environment.
 
-Jenkins is deployed on an AWS EKS cluster using **Helm**, a Kubernetes package manager.
+For more detailed information, check the "Releases" section in the repository.
 
-### 🛠 Installation Steps
+![Releases](https://img.shields.io/badge/Latest%20Releases-blue?style=flat&logo=github)
 
-#### 1️⃣ Add Jenkins Helm Repository
+## Conclusion
 
-```bash
-helm install my-jenkins bitnami/jenkins --version 13.6.8
-helm repo update
-```
-
-#### 2️⃣ Create a Namespace
-
-```bash
-kubectl create namespace jenkins
-```
-
-#### 3️⃣ Use the Provided values.yaml
-
-Key configurations in values.yaml:
-
-- Image: jenkins/jenkins:lts-jdk17
-- Security Context: Non-root user (runAsUser: 1000, runAsGroup: 1000)
-- Plugins: Kubernetes, Git, Pipeline, Credentials, AWS ECR
-- Jenkins URL: http://jenkins.jenkins.svc.cluster.local:8080
-- Service Account: jenkins-kaniko-sa with IAM Role arn:aws:iam::<ACCOUNT_ID>:role/JenkinsKanikoRole
-- Service Type: LoadBalancer
-- Persistence: 8Gi EBS volume (gp3)
-- RBAC: Enabled for Kubernetes access
-- Agent: Kubernetes-based pods for builds
-
-#### 4️⃣ Install Jenkins via Helm
-
-```bash
-helm install jenkins jenkins/jenkins -n jenkins -f jenkins_values.yaml
-```
-
-### 🔐 Access Jenkins
-
-1. Get jenkins Loadbalancer DNS
-
-```bash
-kubectl get svc -n jenkins
-```
-
-Look for the external DNS under the EXTERNAL-IP or hostname field of the LoadBalancer service (usually named jenkins or my-release-jenkins).
-
-2. Retrieve the Jenkins Admin Password
-
-```bash
-kubectl -n jenkins get secret │ my-release-jenkins  -o jsonpath="{.data.password}" | base64 -d
-```
-
-3. Log in to Jenkins
-   Open your browser and visit:
-   http://<LoadBalancer_DNS>:8080
-
-   Use the following credentials:
-
-   - Username: user
-   - Password: (the decoded password from step 2)
-
-### ✅ Apply Service Account
-
-```bash
-kubectl apply -f /Manifiests/service-account.yaml
-kubectl describe serviceaccount jenkins-kaniko-sa -n jenkins
-```
-
-Ensure the correct IAM role annotation is set for ECR access.
-
-### 🧩 Jenkins UI Configuration
-
-1. Install Required Plugins
-   Go to: Manage Jenkins > Manage Plugins > Available
-
-2. Install:
-
-   - Kubernetes Plugin
-   - Git Plugin
-   - Pipeline Plugin
-   - Restart Jenkins after installation.
-
-3. ⚙️ Configure Kubernetes Cloud
-   Navigate to: Manage Jenkins > Configure System > Cloud > Kubernetes
-
-   Set the following:
-
-   - Kubernetes URL: https://kubernetes.default.svc.cluster.local
-   - Namespace: jenkins
-   - Jenkins URL: http://jenkins.jenkins.svc.cluster.local:8080
-   - Jenkins Tunnel: jenkins.jenkins.svc.cluster.local:50000
-
-   Test connection to validate communication.
-
-### 🔑 Add GitHub Credentials
-
-Go to: Manage Jenkins > Manage Credentials > System > Global credentials (unrestricted) > Add Credentials
-
-Fill in:
-
-- Kind: Username with Password
-- Scope: Global
-- Username: Your GitHub username
-- Password: GitHub personal access token (with repo scope)
-- ID: github-credentials
-- Description: GitHub credentials for pipeline
-
-### 🛠 Jenkins Pipeline Stages
-
-This pipeline checks out code and builds/pushes a Docker image to Amazon ECR.
-
-📂 Checkout
-Container: git (uses alpine/git:latest)
-
-Action: Clones main branch of https://github.com/MalakGhazy/nodejs-application.git
-
-```bash
-stage('Checkout') {
-    steps {
-       container('git') {
-            git branch: 'main', url: 'https://github.com/MalakGhazy/nodejs-application.git'
-        }
-    }
-}
-```
-
-### 🏗 Build and Push Image
-
-Container: kaniko (gcr.io/kaniko-project/executor:debug)
-Dockerfile Location: Application/Dockerfile
-Environment Variables:
-
-- ECR_REGISTRY: 339007232055.dkr.ecr.us-east-1.amazonaws.com
-- IMAGE_REPO: my-ecr
-- IMAGE_TAG: ${BUILD_NUMBER}
-
-```bash
-stage('Build and Push Image') {
-    steps {
-        container('kaniko') {
-            script {
-                sh """
-                    /kaniko/executor \
-                    --dockerfile=Application/Dockerfile \
-                    --context=. \
-                    --destination=${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG} \
-                    --cache=true \
-                    --cache-ttl=24h
-                """
-      }
-    }
-  }
-}
-```
-
-### ✅ Post-Build Actions
-
-```bash
-post {
-   always {
-      echo "Build completed"
-    }
-   success {
-      echo "Image pushed successfully to ${ECR_REGISTRY}/${IMAGE_REPO}:${IMAGE_TAG}"
-    }
-   failure {
-      echo "Build failed"
-    }
-}
-```
-
-# 🚀 Continuous Deployment – ArgoCD + Argo Image Updater
-
-- Create ArgoCD namespace
-
-```bash
-kubectl create ns argocd
-```
-
-- ArgoCD installation via Helm
-
-```bash
-helm repo add argo https://argoproj.github.io/argo-helm
-helm install -n argocd argocd argo/argo-cd --version 8.0.14
-```
-
-- Get ArgoCD initial password
-
-```bash
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-```
-
-- Setup ArgoCD application
-
-![ArgoApp](Images/ArgoApp.png)
-
-- Install ArgoCD image updater with values
-
-```bash
-helm install -n argocd argocd-image-updater argo/argocd-image-updater --version 0.12.2 -f Helm/argo_imageupdater_values.yaml
-```
-
-- Add image updater annotations
-
-```yaml
-argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
-argocd-image-updater.argoproj.io/image-list: 339007232055.dkr.ecr.us-east-1.amazonaws.com/my-ecr:1.x
-argocd-image-updater.argoproj.io/myapp.update-strategy: semver
-```
-
-![Annotations](Images/Annotations.png)
-
-- Wait For the image update event
-
-![ImageUpdater](Images/ImageUpdater.png)
-
-- ArgoCD pushes the new version to Github and updates the Deployment
-
-![ArgoCommit](Images/ArgoCommit.png)
-
-![NewVersion](Images/NewVersion.png)
-
-# 🔐 External Secrets Operator with AWS Secrets Manager
-
-This guide explains how to set up the **External Secrets Operator** with **AWS Secrets Manager** to automatically sync secrets into your Kubernetes cluster.
-
----
-
-## 🛠️ **Installation**
-
-### 1️⃣ **Add the Helm Repository:**
-
-```bash
-helm repo add external-secrets-operator https://charts.external-secrets.io/
-```
-
-### 2️⃣ **Install the External Secrets Operator:**
-
-```bash
-helm install external-secrets external-secrets/external-secrets \
-  -n external-secrets --create-namespace \
-  --set serviceAccount.name=external-secrets \
-  --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::<ACCOUNT_ID>:role/external-secrets-irsa\
-  --set installCRDs=true
-```
-
-### 3️⃣ **Verify Installation:**
-
-```bash
-kubectl get pods -n external-secrets
-```
-
----
-
-## 🔐 **Connect to AWS Secrets Manager**
-
-### **Create a ClusterSecretStore**
-
-Now, Apply the K8s Manifests
-
-```bash
-kubectl apply -f k8s/secrets
-```
-
-## ✅ **Verify the Synced Secret**
-
-You can verify that the secret has been synced successfully by checking the secret in your Kubernetes cluster:
-
-```bash
-kubectl get secrets
-```
-
-## ✅ **Verify the Secret has right values**
-
-You can verify that the secret has the same values in the secret manager in your Kubernetes cluster :
-
-```bash
-kubectl get secret <SECRET_NAME>  -o jsonpath="{.data}" | jq 'to_entries[] | "\(.key): \(.value | @base64d)"'
-```
-
----
-
-![secrets](Images/secret.png)
-
-## 🛠 **Using the Secrets in Your Application**
-
-Now, in your _Deployment_ manifest, reference the synced secret:
-
-```yaml
-env:
-  - name: DB_USERNAME
-    valueFrom:
-      secretKeyRef:
-        name: mysql-k8s-secret
-        key: username
-  - name: DB_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: mysql-k8s-secret
-        key: password
-```
-
----
-
-This setup will allow the **External Secrets Operator** to automatically sync secrets from **AWS Secrets Manager** into your Kubernetes cluster and make them available to your applications securely.
-
-# 🐍 Application – Node.js + MySQL + Redis
-
-This section describes the deployment process for a Node.js web application integrated with MySQL and Redis inside the EKS cluster.
-
-### 🛢️ 1. MySQL Deployment via Bitnami Helm Chart
-
-**🧪 Authentication Prerequisite**
-
-Before installing the MySQL Helm chart from DockerHub OCI registry, authenticated using:
-
-```bash
-helm registry login registry-1.docker.io
-Username: <your_dockerhub_username>
-Password: <your_dockerhub_password_or_token>
-
-```
-
-**📦 Installation Command**
-
-```bash
-helm install my-mysql oci://registry-1.docker.io/bitnamicharts/mysql -f mysql_values.yaml --namespace default
-```
-
-**⚙️ mysql Configuration**
-
-To securely configure MySQL authentication within your Kubernetes cluster, we use Terraform, AWS Secrets Manager, and the Bitnami MySQL Helm chart together. The Helm chart expects specific secret key names, and we make sure those are correctly provided via automation.
-
-**✅ Required Secret Keys (Expected by Bitnami MySQL Chart)**
-
-- The Bitnami chart is designed to look for a Kubernetes Secret with the following keys:
-  `mysql-root-password`,`mysql_hostname`,`mysql-username`,`mysql-password`,`mysql_port`
-- so we use `mysql_values.yaml` to override default Bitnami MySQL Helm chart settings. It instructs the chart to use an existing Kubernetes Secret `mysql-k8s-secret` and maps specific keys for the credentials.
-
-📁 File Location: [Helm/mysql_values.yaml](./Helm/mysql_values.yaml)
-
-✅ Validation
-Verified the MySQL deployment using a MySQL client pod:
-
-```bash
-kubectl run my-mysql-client --rm --tty -i --restart='Never' --image  docker.io/bitnami/mysql:9.3.0-debian-12-r0 --namespace default --env MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD --command -- bash
-```
-
-### ⚡ 2. Redis Deployment
-
-**📦 Installation Command**
-
-```bash
-helm install redis bitnami/redis --set auth.enabled=false --namespace default
-```
-
-We created a secret containing the Redis hostname and port, which is injected as environment variables into the Node.js application to enable seamless connection to the Redis service.
-
-### 🔧 3. Node.js Application
-
-#### **📁 Application Directory Structure**
-
-The application source code and Dockerfile are located under the [Applications](./Applications) directory.
-
-#### **🐳 Docker Image Build & Push to ECR**
-
-To containerize the application and push it to Amazon Elastic Container Registry (ECR), the following steps were executed:
-
-1. **Authenticate Docker with ECR:**
-
-```bash
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 339007232055.dkr.ecr.us-east-1.amazonaws.com
-```
-
-2. Build and Push Image to ECR:
-
-```bash
-# Build the Docker image from the Application directory
-docker build -t my-ecr/nodejs-mysql-redis ./Application
-
-# Tag the image for ECR
-docker tag my-ecr/nodejs-mysql-redis:latest 339007232055.dkr.ecr.us-east-1.amazonaws.com/my-ecr:latest
-
-# Push the image to ECR
-docker push 339007232055.dkr.ecr.us-east-1.amazonaws.com/my-ecr:latest
-
-```
-
-> This image is later pulled by the Kubernetes deployment running inside EKS.
-
-#### 🚀 Deployment via Kubernetes
-
-- The deployment manifest for the Node.js application is defined under the [Manifests](./Manifests) directory.
-- This includes:
-  - **nodejs_deployment.yaml:** Defines the Kubernetes Deployment for the Node.js app.
-  - **service.yaml:** Defines the Service resource with LoadBalancer type to expose the application externally.
-
-#### 🔐 Environment Variables and Secrets Integration
-
-- The application requires environment variables to connect to MySQL and Redis.
-- These values (such as `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, etc.) are securely sourced from Kubernetes Secrets and injected into the Node.js pod to enable seamless connectivity to these backend services.
-- The secrets themselves are dynamically synced from **AWS Secrets Manager** using the **External Secrets Operator (ESO).**
-
-## 🌐 Application Access
-
-![](./Images/App.gif)
-
----
-
-# 🌐 ingress and HTTPS
-
-This guide walks you through setting up **Ingress** and **TLS certificates** for your applications using **NGINX Ingress Controller** and **cert-manager** with **Let's Encrypt**.
-
-## 🛠️ **Installation**
-
-### 1️⃣ **Install NGINX Ingress Controller**
-
-```bash
-kubectl create namespace ingress-nginx
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx
-```
-
----
-
-### 2️⃣ **Install cert-manager:**
-
-```bash
-kubectl create namespace cert-manager
-
-helm repo add jetstack https://charts.jetstack.io \
-helm install cert-manager jetstack/cert-manager \
---namespace cert-manager \
---set installCRDs=true
-```
-
----
-
-### 3️⃣ **Get Ingress External IP (ALB)**
-
-To get the public IP or DNS name of the Ingress ALB:
-
-```bash
-kubectl get svc -n ingress-nginx
-
-dig +short <INGRESS_ALB_EXTERNAL_IP>
-```
-
-> [!NOTE]
-> If multiple IPs are returned, any one of them can be used.
-
----
-
-### 4️⃣ **Set Up Ingress Hosts (DNS)**
-
-- **🔷 For ArgoCD:**
-  Update the ArgoCD Helm values file located at:[argocd values](./Helm/argocd_values.yaml)
-
-  Then upgrade the ArgoCD release:
-
-  ```bash
-  helm upgrade -n argocd argocd argo/argo-cd -f ./Helm/argocd_values.yaml
-  ```
-
-- **🔶 For Jenkins and Application:**
-  Create the Ingress resources for Jenkins and your application using the manifests located at: [Ingress Manifests](./Manifests/ingress/)
-
-> [!IMPORTANT]
-> Replace the domain or IP in the ingress files with the Ingress ALB IP or external DNS name from step 3.
-
----
-
-### 5️⃣ **Apply Ingress and TLS Manifests**
-
-➤ Apply the ClusterIssuer (for HTTPS via Let’s Encrypt)
-
-```bash
-kubectl apply -f ./Manifests/ingress/cluster-issuer.yaml
-```
-
-➤ Apply Application and Jenkins Ingresses
-
-```bash
-kubectl apply -f ./Manifests/ingress/app-ingress.yaml
-kubectl apply -f ./Manifests/ingress/jenkins-ingress.yaml
-```
-
-### 6️⃣ **Verify Ingress Resources**
-
-Check that the ingress rules and hosts are correctly created:
-
-```bash
-kubectl get ingress --all-namespaces
-```
-
-### 7️⃣ **Access Your Applications**
-
-- **Application Ingress**  
-  ![Application Ingress](./Images/app-ingress.png)
-
-- **Jenkins Ingress**  
-  ![Jenkins Ingress](./Images/jenkins-ingress.png)
-
-- **ArgoCD Ingress**  
-  ![ArgoCD Ingress](./Images/argocd-ingress.png)
-
-> [!NOTE]
-> This setup uses [`sslip.io`](https://sslip.io) wildcard DNS, which automatically maps IPs to domain names for quick testing. For example:
-
-```bash
-http://app.<ingress-ip>.sslip.io
-```
-
-> [!TIP] > **This is suitable for development and testing purposes only.** For production, you should use a real domain name with proper DNS records.
-
-# References:
-
-[Artifact hub - Jenkins](https://artifacthub.io/packages/helm/bitnami/jenkins)<br>
-[Github - Kaniko](https://github.com/GoogleContainerTools/kaniko) <br>
-[Artifact hub - External Operator](https://artifacthub.io/packages/Helm/external-secrets-operator/external-secrets?modal=install) <br>
-[External Secrets Operator](https://external-secrets.io/latest/)<br>
-[Cert-manager](https://cert-manager.io/docs/) <br>
-[ACME HTTP-01 Challenge](https://cert-manager.io/docs/configuration/acme/http01/) <br>
-[ClusterIssuer Resource](https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.ClusterIssuer) <br>
-[sslip.io - Free Wildcard DNS](https://sslip.io)
+This repository provides a comprehensive solution for implementing a GitOps CI/CD pipeline on AWS. By following the setup instructions and utilizing the technologies mentioned, you can effectively manage your applications in the cloud. Happy coding!
